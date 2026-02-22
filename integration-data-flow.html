@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equity Platform Integration — Data Flow Architecture</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4efe4;
+  color: #0d1b2e;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #0d1b2e 0%, #154C8A 60%, #1a60b0 100%);
+  padding: 28px 40px 24px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 80% 50%, rgba(147,104,70,0.18) 0%, transparent 60%);
+}
+.hdr-inner { position:relative; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.hdr-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:6px; }
+.hdr-title { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.3px; line-height:1.2; }
+.hdr-title span { color:#c9a97a; }
+.hdr-sub { margin-top:5px; font-size:12px; color:rgba(255,255,255,0.5); }
+.hdr-badge {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 1320px; margin: 0 auto; padding: 32px 24px 48px; }
+
+/* ── LEGEND ── */
+.legend {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  background: #fff; border-radius: 12px;
+  padding: 14px 24px; margin-bottom: 28px;
+  border: 1px solid rgba(21,76,138,0.1);
+  box-shadow: 0 1px 6px rgba(21,76,138,0.06);
+}
+.leg-item { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:#0d1b2e; }
+.leg-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+/* ── FLOW SECTION ── */
+.flow-section {
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(21,76,138,0.1);
+  box-shadow: 0 2px 12px rgba(21,76,138,0.07);
+  overflow: hidden;
+}
+.flow-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.flow-header:hover { background: #fafbff; }
+.flow-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff; flex-shrink:0;
+}
+.flow-heading { flex: 1; }
+.flow-heading h2 { font-size: 15px; font-weight: 700; color: #0d1b2e; }
+.flow-heading p { font-size: 12px; color: rgba(13,27,46,0.5); margin-top:2px; }
+.flow-toggle { font-size: 18px; color: rgba(13,27,46,0.35); transition: transform 0.25s; }
+.flow-toggle.open { transform: rotate(90deg); }
+.flow-body { padding: 0 24px 24px; display:none; }
+.flow-body.open { display:block; }
+
+/* ── TRIGGER CHIP ── */
+.trigger-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.trigger-chip {
+  font-size:11px; font-weight:600; letter-spacing:0.3px;
+  padding: 5px 12px; border-radius:20px;
+  border: 1.5px solid; cursor:default;
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-diagram {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr 36px 1fr 36px 1fr;
+  gap: 0;
+  align-items: start;
+  overflow-x: auto;
+}
+.flow-node {
+  border-radius: 12px;
+  padding: 16px;
+  border: 1.5px solid;
+  min-width: 180px;
+}
+.node-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 8px; opacity:0.65;
+}
+.node-title { font-size: 14px; font-weight: 700; color: #0d1b2e; margin-bottom: 10px; }
+.node-items { list-style: none; display:flex; flex-direction:column; gap:5px; }
+.node-item {
+  display:flex; align-items:flex-start; gap:6px;
+  font-size:11.5px; color: rgba(13,27,46,0.75); line-height:1.4;
+}
+.node-item::before { content:'›'; font-weight:700; flex-shrink:0; margin-top:0px; }
+
+/* arrow col */
+.arrow-col {
+  display: flex; align-items: center; justify-content: center;
+  padding-top: 60px;
+  flex-direction: column; gap: 3px;
+}
+.arrow-line {
+  height: 2px; width: 100%; border-radius:1px;
+}
+.arrow-tip { font-size:16px; line-height:1; }
+.arrow-label {
+  font-size:9px; font-weight:700; letter-spacing:0.5px;
+  text-transform:uppercase; text-align:center; margin-top:4px;
+  white-space:nowrap;
+}
+
+/* ── EVENT TIMELINE ── */
+.timeline { margin-top: 20px; }
+.timeline-title { font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:rgba(13,27,46,0.45); margin-bottom:12px; }
+.timeline-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:10px; }
+.t-event {
+  border-radius:10px; padding:12px 14px;
+  border: 1px solid; display:flex; align-items:flex-start; gap:10px;
+}
+.t-icon { font-size:20px; line-height:1; flex-shrink:0; }
+.t-body {}
+.t-name { font-size:12px; font-weight:700; color:#0d1b2e; margin-bottom:3px; }
+.t-desc { font-size:11px; color:rgba(13,27,46,0.6); line-height:1.4; }
+
+/* ── MERGE BOX ── */
+.merge-node {
+  border-radius: 12px;
+  padding: 16px;
+  border: 2px solid;
+  position: relative;
+}
+.merge-badge {
+  position: absolute; top:-10px; left:50%; transform:translateX(-50%);
+  font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+  padding: 3px 10px; border-radius: 10px; white-space:nowrap;
+}
+
+/* ── NOTE BOX ── */
+.note-box {
+  margin-top:16px;
+  background: #fffbf3;
+  border: 1px solid #e8d5a8;
+  border-left: 4px solid #936846;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: rgba(13,27,46,0.7);
+  line-height: 1.6;
+}
+.note-box strong { color: #936846; }
+
+/* ── API PAYLOAD ── */
+.payload-section { margin-top: 18px; }
+.payload-title { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:rgba(13,27,46,0.4); margin-bottom:8px; }
+.payload-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:8px; }
+.payload-card {
+  background: #f9f9fb;
+  border: 1px solid rgba(21,76,138,0.1);
+  border-radius:8px; padding:10px 12px;
+}
+.payload-endpoint { font-size:10px; font-weight:700; font-family: monospace; margin-bottom:4px; }
+.payload-fields { font-size:11px; color:rgba(13,27,46,0.6); line-height:1.7; }
+.field-name { font-family:monospace; font-size:10.5px; background:#eef1f8; padding:1px 5px; border-radius:3px; display:inline-block; margin:1px 0; }
+
+/* colors */
+.c-blue   { background:#eef4fd; border-color:#154C8A22; }
+.c-green  { background:#edfaf3; border-color:#15803d22; }
+.c-purple { background:#f4effe; border-color:#7c3aed22; }
+.c-amber  { background:#fffbeb; border-color:#d97706; }
+
+.dot-blue   { background:#154C8A; }
+.dot-green  { background:#15803d; }
+.dot-purple { background:#7c3aed; }
+.dot-orange { background:#ea580c; }
+
+.num-blue   { background:#154C8A; }
+.num-green  { background:#15803d; }
+.num-purple { background:#7c3aed; }
+
+.chip-blue   { border-color:#154C8A44; background:#eef4fd; color:#154C8A; }
+.chip-green  { border-color:#15803d44; background:#edfaf3; color:#15803d; }
+.chip-purple { border-color:#7c3aed44; background:#f4effe; color:#7c3aed; }
+
+.arrow-blue   { background:#154C8A; color:#154C8A; }
+.arrow-green  { background:#15803d; color:#15803d; }
+.arrow-purple { background:#7c3aed; color:#7c3aed; }
+
+.t-blue   { background:#eef4fd; border-color:#154C8A33; }
+.t-green  { background:#edfaf3; border-color:#15803d33; }
+.t-purple { background:#f4effe; border-color:#7c3aed33; }
+
+.merge-blue   { border-color:#154C8A; background:#f0f5ff; }
+.merge-green  { border-color:#15803d; background:#f0faf5; }
+.merge-purple { border-color:#7c3aed; background:#f7f0ff; }
+
+.badge-blue   { background:#154C8A; color:#fff; }
+.badge-green  { background:#15803d; color:#fff; }
+.badge-purple { background:#7c3aed; color:#fff; }
+
+.pe-blue   { color:#154C8A; }
+.pe-green  { color:#15803d; }
+.pe-purple { color:#7c3aed; }
+
+/* ── GAP WARNING ── */
+.gap-section { margin-top: 28px; }
+.gap-title { font-size:13px; font-weight:700; color:#0d1b2e; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.gap-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:10px; }
+.gap-card {
+  border-radius:10px; padding:14px 16px;
+  background: #fff8f1; border:1px solid #f59e0b44;
+  border-left:4px solid #d97706;
+}
+.gap-card.red { background:#fff5f5; border-color:#ef444444; border-left-color:#dc2626; }
+.gap-name { font-size:12px; font-weight:700; color:#0d1b2e; margin-bottom:4px; }
+.gap-desc { font-size:11.5px; color:rgba(13,27,46,0.65); line-height:1.5; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-eyebrow">Integration Architecture</div>
+      <div class="hdr-title">Equity Platform <span>Data Flow</span></div>
+      <div class="hdr-sub">HRIS · Payroll · GL/ERP — via Merge Unified API</div>
+    </div>
+    <div class="hdr-badge">⚡ Internal Use Only — 2026</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot dot-blue"></div>Flow 1 — HRIS Inbound (Employee & ESPP Data)</div>
+    <div class="leg-item"><div class="leg-dot dot-green"></div>Flow 2 — Payroll Write-Back (Contributions & Withholding)</div>
+    <div class="leg-item"><div class="leg-dot dot-purple"></div>Flow 3 — GL/Accounting (Journal Entries)</div>
+    <div class="leg-item"><div class="leg-dot dot-orange"></div>Known Gap (Outside Merge Catalog)</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FLOW 1: HRIS INBOUND -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="flow-section">
+    <div class="flow-header" onclick="toggle('f1')">
+      <div class="flow-num num-blue">1</div>
+      <div class="flow-heading">
+        <h2>HRIS Inbound — Employee & ESPP Data Pull</h2>
+        <p>Merge HRIS API → JPM WPS Equity Platform — Demographics, location, pay groups, benefits & contribution elections</p>
+      </div>
+      <div class="flow-toggle open" id="f1-toggle">›</div>
+    </div>
+    <div class="flow-body open" id="f1-body">
+
+      <div class="trigger-row">
+        <div class="trigger-chip chip-blue">⏱ Daily sync (full refresh)</div>
+        <div class="trigger-chip chip-blue">⚡ Real-time on employee change event</div>
+        <div class="trigger-chip chip-blue">📋 ESPP enrollment window open</div>
+        <div class="trigger-chip chip-blue">🔄 New hire / termination event</div>
+      </div>
+
+      <div class="flow-diagram">
+
+        <!-- SOURCE SYSTEMS -->
+        <div class="flow-node c-blue">
+          <div class="node-label">Source Systems</div>
+          <div class="node-title">HRIS / HCM</div>
+          <ul class="node-items">
+            <li class="node-item">Workday HCM</li>
+            <li class="node-item">SAP SuccessFactors</li>
+            <li class="node-item">ADP Workforce Now</li>
+            <li class="node-item">Dayforce / UKG Pro</li>
+            <li class="node-item">BambooHR / Gusto</li>
+            <li class="node-item">Oracle HCM Cloud</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-blue"></div>
+          <div class="arrow-tip" style="color:#154C8A">›</div>
+          <div class="arrow-label" style="color:#154C8A">GET</div>
+        </div>
+
+        <!-- MERGE HRIS API -->
+        <div class="merge-node merge-blue">
+          <div class="merge-badge badge-blue">Merge HRIS API</div>
+          <div class="node-label" style="margin-top:8px">Unified Layer</div>
+          <div class="node-title">Normalized Employee Objects</div>
+          <ul class="node-items">
+            <li class="node-item"><code>/employees</code> — id, name, start date, status</li>
+            <li class="node-item"><code>/locations</code> — country, state, city</li>
+            <li class="node-item"><code>/employments</code> — type, FTE, job title</li>
+            <li class="node-item"><code>/pay-groups</code> — payroll cycle, currency</li>
+            <li class="node-item"><code>/benefits</code> — ESPP enrollment, tier</li>
+            <li class="node-item"><code>/time-off</code> — leave (affects vesting)</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-blue"></div>
+          <div class="arrow-tip" style="color:#154C8A">›</div>
+          <div class="arrow-label" style="color:#154C8A">Normalized</div>
+        </div>
+
+        <!-- JPM WPS PLATFORM -->
+        <div class="flow-node" style="background:#f0f5ff; border:1.5px solid #154C8A; border-radius:12px; padding:16px;">
+          <div class="node-label" style="color:#154C8A">JPM WPS Platform</div>
+          <div class="node-title">Equity Engine Processing</div>
+          <ul class="node-items">
+            <li class="node-item">Validate grant eligibility</li>
+            <li class="node-item">Compute ESPP contribution cap (15% IRS limit)</li>
+            <li class="node-item">Map tax jurisdiction by location</li>
+            <li class="node-item">Assign vesting schedule by employee type</li>
+            <li class="node-item">Flag terminated employees for forfeiture</li>
+            <li class="node-item">Sync pay cycle for withholding timing</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-blue"></div>
+          <div class="arrow-tip" style="color:#154C8A">›</div>
+          <div class="arrow-label" style="color:#154C8A">Writes back</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="flow-node c-blue">
+          <div class="node-label">Output to</div>
+          <div class="node-title">Equity Records</div>
+          <ul class="node-items">
+            <li class="node-item">Grant database updated</li>
+            <li class="node-item">ESPP contribution elections confirmed</li>
+            <li class="node-item">Participant portal eligibility unlocked</li>
+            <li class="node-item">Tax jurisdiction mapped per participant</li>
+            <li class="node-item">Vesting calendar generated</li>
+          </ul>
+        </div>
+
+        <!-- empty last arrow col -->
+        <div></div><div></div>
+
+      </div><!-- end flow-diagram -->
+
+      <div class="payload-section">
+        <div class="payload-title">Key API Payloads via Merge HRIS</div>
+        <div class="payload-grid">
+          <div class="payload-card">
+            <div class="payload-endpoint pe-blue">GET /employees</div>
+            <div class="payload-fields">
+              <span class="field-name">id</span> <span class="field-name">first_name</span> <span class="field-name">last_name</span><br>
+              <span class="field-name">work_email</span> <span class="field-name">start_date</span><br>
+              <span class="field-name">employment_status</span> <span class="field-name">manager_id</span>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-blue">GET /locations</div>
+            <div class="payload-fields">
+              <span class="field-name">country</span> <span class="field-name">state</span> <span class="field-name">city</span><br>
+              <span class="field-name">zip_code</span> <span class="field-name">location_type</span><br>
+              → used to set <strong>tax jurisdiction</strong>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-blue">GET /pay-groups</div>
+            <div class="payload-fields">
+              <span class="field-name">pay_frequency</span> <span class="field-name">currency</span><br>
+              <span class="field-name">pay_period_start</span> <span class="field-name">pay_period_end</span><br>
+              → determines <strong>withholding cycle</strong>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-blue">GET /benefits</div>
+            <div class="payload-fields">
+              <span class="field-name">benefit_plan_type</span> → ESPP<br>
+              <span class="field-name">employee_contribution</span> <span class="field-name">%</span><br>
+              <span class="field-name">enrollment_date</span> <span class="field-name">coverage_start</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FLOW 2: PAYROLL WRITE-BACK -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="flow-section">
+    <div class="flow-header" onclick="toggle('f2')">
+      <div class="flow-num num-green">2</div>
+      <div class="flow-heading">
+        <h2>Payroll Write-Back — Contributions, Supplemental Income & Tax Withholding</h2>
+        <p>JPM WPS Equity Platform → Payroll System — On ESPP purchase, RSU vest, option exercise</p>
+      </div>
+      <div class="flow-toggle open" id="f2-toggle">›</div>
+    </div>
+    <div class="flow-body open" id="f2-body">
+
+      <div class="trigger-row">
+        <div class="trigger-chip chip-green">💰 ESPP purchase event</div>
+        <div class="trigger-chip chip-green">📅 RSU vest date</div>
+        <div class="trigger-chip chip-green">⚙️ Stock option exercise</div>
+        <div class="trigger-chip chip-green">🔄 ESPP contribution deduction (each pay period)</div>
+      </div>
+
+      <div class="flow-diagram">
+
+        <!-- JPM WPS SOURCE -->
+        <div class="flow-node" style="background:#f0faf5; border:1.5px solid #15803d; border-radius:12px; padding:16px;">
+          <div class="node-label" style="color:#15803d">JPM WPS Platform</div>
+          <div class="node-title">Equity Event Computed</div>
+          <ul class="node-items">
+            <li class="node-item">ESPP contribution amount per paycheck</li>
+            <li class="node-item">RSU FMV on vest date (supplemental income)</li>
+            <li class="node-item">Option exercise spread (ISO vs NQ)</li>
+            <li class="node-item">Federal + state withholding due</li>
+            <li class="node-item">FICA/Medicare on NQ exercise</li>
+            <li class="node-item">Mobile employee — multi-jurisdiction calc</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-green"></div>
+          <div class="arrow-tip" style="color:#15803d">›</div>
+          <div class="arrow-label" style="color:#15803d">Push</div>
+        </div>
+
+        <!-- MERGE / DIRECT -->
+        <div class="merge-node" style="border-color:#15803d; background:#f0faf5;">
+          <div class="merge-badge badge-green">Merge HRIS API (partial) + Direct</div>
+          <div class="node-label" style="margin-top:8px; color:#15803d">⚠ Merge is largely read-only here</div>
+          <div class="node-title" style="font-size:13px;">Payroll Write Endpoints</div>
+          <ul class="node-items">
+            <li class="node-item">Merge: <code>/payroll-runs</code> (read status only)</li>
+            <li class="node-item">Direct ADP API: supplemental earnings POST</li>
+            <li class="node-item">Direct Workday API: payroll input write</li>
+            <li class="node-item">File-based fallback: payroll flat file (CSV)</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-green"></div>
+          <div class="arrow-tip" style="color:#15803d">›</div>
+          <div class="arrow-label" style="color:#15803d">Inject</div>
+        </div>
+
+        <!-- PAYROLL SYSTEM -->
+        <div class="flow-node c-green">
+          <div class="node-label">Payroll Systems</div>
+          <div class="node-title">Payroll Engine</div>
+          <ul class="node-items">
+            <li class="node-item">ADP Workforce Now</li>
+            <li class="node-item">Workday Payroll</li>
+            <li class="node-item">Ceridian Dayforce</li>
+            <li class="node-item">Paychex Flex</li>
+            <li class="node-item">UKG Pro</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-green"></div>
+          <div class="arrow-tip" style="color:#15803d">›</div>
+          <div class="arrow-label" style="color:#15803d">Processes</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="flow-node c-green">
+          <div class="node-label">Paycheck Output</div>
+          <div class="node-title">Employee Pay Impact</div>
+          <ul class="node-items">
+            <li class="node-item">ESPP deduction on paystub</li>
+            <li class="node-item">RSU vest taxable income added</li>
+            <li class="node-item">Supplemental withholding deducted (22% flat)</li>
+            <li class="node-item">State tax withheld by jurisdiction</li>
+            <li class="node-item">W-2 Box 12 (Code V for ISO) populated</li>
+          </ul>
+        </div>
+
+        <div></div><div></div>
+
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-title">Event-by-Event Payroll Actions</div>
+        <div class="timeline-grid">
+          <div class="t-event t-green">
+            <div class="t-icon">💵</div>
+            <div class="t-body">
+              <div class="t-name">ESPP Each Pay Period</div>
+              <div class="t-desc">Deduct elected % of gross pay (max 15%). Send deduction file to payroll processor prior to payroll lock date.</div>
+            </div>
+          </div>
+          <div class="t-event t-green">
+            <div class="t-icon">📋</div>
+            <div class="t-body">
+              <div class="t-name">ESPP Purchase Day</div>
+              <div class="t-desc">Report bargain element as W-2 income. Withhold supplemental tax. Update payroll register for the quarter.</div>
+            </div>
+          </div>
+          <div class="t-event t-green">
+            <div class="t-icon">📅</div>
+            <div class="t-body">
+              <div class="t-name">RSU Vest Event</div>
+              <div class="t-desc">FMV × shares vested = ordinary income. Push supplemental earnings to payroll. Net settle (sell-to-cover) or withhold via payroll per election.</div>
+            </div>
+          </div>
+          <div class="t-event t-green">
+            <div class="t-icon">⚙️</div>
+            <div class="t-body">
+              <div class="t-name">NQ Option Exercise</div>
+              <div class="t-desc">Spread = (FMV − strike) × shares. FICA + Medicare + federal/state withholding. Write to payroll as supplemental wages.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>⚠ Merge Gap:</strong> Merge's HRIS API does not support writing payroll transactions natively. For ESPP deductions and RSU vest withholding, JPM WPS must use <strong>direct payroll provider APIs</strong> (ADP, Workday) or deliver a <strong>structured flat file</strong> per payroll processor spec. Merge can read payroll run status and employee pay info — but not inject supplemental earnings.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FLOW 3: ACCOUNTING / GL -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="flow-section">
+    <div class="flow-header" onclick="toggle('f3')">
+      <div class="flow-num num-purple">3</div>
+      <div class="flow-heading">
+        <h2>Accounting API — GL Journal Entry Push (ASC 718)</h2>
+        <p>JPM WPS Equity Platform → Merge Accounting API → Client GL — Stock comp expense, APIC, tax entries</p>
+      </div>
+      <div class="flow-toggle open" id="f3-toggle">›</div>
+    </div>
+    <div class="flow-body open" id="f3-body">
+
+      <div class="trigger-row">
+        <div class="trigger-chip chip-purple">📅 Monthly / quarterly close</div>
+        <div class="trigger-chip chip-purple">📋 RSU vest / option exercise / ESPP purchase</div>
+        <div class="trigger-chip chip-purple">🔄 Grant modification event</div>
+        <div class="trigger-chip chip-purple">🏁 Performance condition met</div>
+      </div>
+
+      <div class="flow-diagram">
+
+        <!-- JPM WPS SOURCE -->
+        <div class="flow-node" style="background:#f7f0ff; border:1.5px solid #7c3aed; border-radius:12px; padding:16px;">
+          <div class="node-label" style="color:#7c3aed">JPM WPS Platform</div>
+          <div class="node-title">ASC 718 Calculation Engine</div>
+          <ul class="node-items">
+            <li class="node-item">Black-Scholes / Monte Carlo valuation</li>
+            <li class="node-item">Graded vesting expense attribution</li>
+            <li class="node-item">Forfeiture rate adjustment</li>
+            <li class="node-item">Performance condition probability weighting</li>
+            <li class="node-item">Tax benefit calculation (excess / shortfall)</li>
+            <li class="node-item">ESPP discount expense (15% look-back)</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-purple"></div>
+          <div class="arrow-tip" style="color:#7c3aed">›</div>
+          <div class="arrow-label" style="color:#7c3aed">POST JE</div>
+        </div>
+
+        <!-- MERGE ACCOUNTING -->
+        <div class="merge-node merge-purple">
+          <div class="merge-badge badge-purple">Merge Accounting API</div>
+          <div class="node-label" style="margin-top:8px; color:#7c3aed">Unified GL Layer</div>
+          <div class="node-title">Journal Entry Objects</div>
+          <ul class="node-items">
+            <li class="node-item"><code>POST /journal-entries</code></li>
+            <li class="node-item"><code>GET /accounts</code> → Chart of Accounts</li>
+            <li class="node-item"><code>GET /tracking-categories</code> → Cost Centers</li>
+            <li class="node-item"><code>GET /accounting-periods</code> → Period lock check</li>
+            <li class="node-item">Normalizes across all GL platforms</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-purple"></div>
+          <div class="arrow-tip" style="color:#7c3aed">›</div>
+          <div class="arrow-label" style="color:#7c3aed">Writes JE</div>
+        </div>
+
+        <!-- GL SYSTEMS -->
+        <div class="flow-node c-purple">
+          <div class="node-label">GL Systems (via Merge)</div>
+          <div class="node-title">Supported ERPs</div>
+          <ul class="node-items">
+            <li class="node-item">✅ NetSuite (Oracle)</li>
+            <li class="node-item">✅ Sage Intacct</li>
+            <li class="node-item">✅ MS Dynamics 365 BC</li>
+            <li class="node-item">✅ QuickBooks Online</li>
+            <li class="node-item">✅ Xero / Zoho Books</li>
+            <li class="node-item">❌ SAP S/4HANA — gap</li>
+            <li class="node-item">❌ Oracle Fusion — gap</li>
+          </ul>
+        </div>
+
+        <div class="arrow-col">
+          <div class="arrow-line arrow-purple"></div>
+          <div class="arrow-tip" style="color:#7c3aed">›</div>
+          <div class="arrow-label" style="color:#7c3aed">Posted</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="flow-node c-purple">
+          <div class="node-label">GL Outcome</div>
+          <div class="node-title">Reconciled Entries</div>
+          <ul class="node-items">
+            <li class="node-item">Stock comp expense in P&L</li>
+            <li class="node-item">APIC balance updated on BS</li>
+            <li class="node-item">Tax benefit in OCI / retained earnings</li>
+            <li class="node-item">Cost center attribution complete</li>
+            <li class="node-item">Ready for ASC 718 footnote disclosure</li>
+          </ul>
+        </div>
+
+        <div></div><div></div>
+
+      </div>
+
+      <!-- JOURNAL ENTRY TEMPLATES -->
+      <div class="payload-section">
+        <div class="payload-title">Standard Journal Entry Templates (via Merge POST /journal-entries)</div>
+        <div class="payload-grid">
+          <div class="payload-card">
+            <div class="payload-endpoint pe-purple">RSU Vest — Expense Recognition</div>
+            <div class="payload-fields">
+              DR <span class="field-name">Stock Comp Expense</span> $FMV × shares<br>
+              CR <span class="field-name">Additional Paid-in Capital</span> $FMV × shares<br>
+              <em style="font-size:10px; color:#999">Period: month of vest</em>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-purple">RSU Vest — Tax Withholding</div>
+            <div class="payload-fields">
+              DR <span class="field-name">Employee Tax Withholding</span><br>
+              CR <span class="field-name">Cash / Payroll Payable</span><br>
+              <em style="font-size:10px; color:#999">Rate: 22% federal + state</em>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-purple">Monthly ASC 718 Amortization</div>
+            <div class="payload-fields">
+              DR <span class="field-name">Comp Expense (by dept)</span><br>
+              CR <span class="field-name">APIC — Unvested Awards</span><br>
+              <em style="font-size:10px; color:#999">Graded vesting attribution</em>
+            </div>
+          </div>
+          <div class="payload-card">
+            <div class="payload-endpoint pe-purple">ESPP — Discount Expense</div>
+            <div class="payload-fields">
+              DR <span class="field-name">ESPP Compensation Expense</span><br>
+              CR <span class="field-name">APIC</span><br>
+              <em style="font-size:10px; color:#999">15% discount × shares purchased</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>💡 How Merge handles the mapping:</strong> Before posting, JPM WPS calls <code>GET /accounts</code> to retrieve the client's Chart of Accounts and lets the implementation team (or client admin) map <em>Comp Expense → client GL code</em> and <em>APIC → client GL code</em> once. All subsequent JEs use that mapping automatically — no manual uploads.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- GAPS SUMMARY -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="gap-section">
+    <div class="gap-title">⚠️ Known Integration Gaps — Outside Merge Catalog</div>
+    <div class="gap-grid">
+      <div class="gap-card red">
+        <div class="gap-name">SAP S/4HANA & ECC</div>
+        <div class="gap-desc">Not in Merge's accounting catalog. Required for Fortune 500 clients. Needs direct SAP BAPI/IDoc connector or middleware (Boomi, MuleSoft).</div>
+      </div>
+      <div class="gap-card red">
+        <div class="gap-name">Oracle Fusion ERP Cloud</div>
+        <div class="gap-desc">Not supported via Merge. Large enterprise GL gap. Requires Oracle REST API direct integration or EPM Cloud connector.</div>
+      </div>
+      <div class="gap-card red">
+        <div class="gap-name">Workday Financials (GL)</div>
+        <div class="gap-desc">Merge covers Workday HCM (HRIS) but NOT Workday Financials for GL journal entry write. Separate Workday Financials integration required.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-name">Payroll Write-Back (All Providers)</div>
+        <div class="gap-desc">Merge HRIS API is largely read-only. ESPP deduction files and RSU vest withholding require direct provider APIs (ADP, Workday) or structured flat file delivery.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-name">MS Dynamics 365 Finance (Enterprise)</div>
+        <div class="gap-desc">Merge supports Business Central (SMB) but not Dynamics 365 Finance & Operations (enterprise ERP). These are different products with different APIs.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-name">Multi-jurisdiction Tax Engine</div>
+        <div class="gap-desc">Merge carries location data but tax rate calculation for mobile employees (UK → Germany) must be handled inside JPM WPS or via third-party tax rate feed (e.g. Vertex, Sovos).</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end page -->
+
+<script>
+function toggle(id) {
+  const body = document.getElementById(id + '-body');
+  const tog  = document.getElementById(id + '-toggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+  tog.classList.toggle('open', !isOpen);
+}
+// Init: all open
+document.querySelectorAll('.flow-body').forEach(b => b.style.display = 'block');
+</script>
+
+</body>
+</html>
