@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equity Platform — Integration Data Flows</title>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:   #0D1B2E;
+  --blue:   #154C8A;
+  --lblue:  #1a60b0;
+  --cream:  #F4EFE4;
+  --white:  #FFFFFF;
+  --warm:   #936846;
+  --green:  #15803D;
+  --purple: #6D28D9;
+  --red:    #DC2626;
+  --amber:  #B45309;
+  --gray:   #64748B;
+  --lgray:  #F0F4FA;
+  --border: rgba(21,76,138,0.12);
+  --radius: 12px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--cream);
+  color: var(--navy);
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 70%);
+  padding: 36px 48px 32px;
+  position: relative; overflow: hidden;
+}
+.site-header::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0; width: 6px;
+  background: var(--warm);
+}
+.hdr-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px;
+}
+.hdr-title { font-size: 30px; font-weight: 800; color: #fff; line-height: 1.2; }
+.hdr-title span { color: #C9A97A; }
+.hdr-sub { margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.5); }
+.hdr-pills { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.hdr-pill {
+  padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8);
+  cursor: pointer; transition: all 0.18s; text-decoration: none;
+}
+.hdr-pill:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* ── NAV RAIL ── */
+.nav-rail {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 48px; gap: 0;
+  box-shadow: 0 1px 8px rgba(13,27,46,0.06);
+}
+.nav-tab {
+  padding: 14px 20px; font-size: 12px; font-weight: 700;
+  color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all 0.18s; white-space: nowrap; letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.nav-tab:hover { color: var(--navy); }
+.nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* ── PAGE ── */
+.page { max-width: 1280px; margin: 0 auto; padding: 40px 32px 80px; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 64px; scroll-margin-top: 56px; }
+.section-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 12px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.section-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+
+/* ── SIDE-BY-SIDE PANEL ── */
+.panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 20px rgba(13,27,46,0.07);
+  margin-bottom: 20px;
+}
+.panel-story {
+  background: var(--white);
+  padding: 28px 32px;
+  border-right: 1px solid var(--border);
+}
+.panel-flow {
+  background: var(--lgray);
+  padding: 24px 28px;
+}
+.panel-label {
+  font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+}
+.panel-label::before {
+  content: ''; display: block; width: 18px; height: 2px; border-radius: 1px;
+}
+
+/* ── STORY ── */
+.story-scenario { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid #f0f0f0; }
+.story-scenario:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.scenario-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 4px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 8px; color: #fff;
+}
+.story-headline { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.story-body { font-size: 13px; color: #374151; line-height: 1.7; }
+.story-body strong { color: var(--navy); font-weight: 600; }
+.story-highlight {
+  margin-top: 8px; padding: 8px 12px;
+  border-radius: 6px; font-size: 12px; color: #374151;
+  border-left: 3px solid;
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-chain { display: flex; flex-direction: column; gap: 10px; }
+
+.flow-row { display: flex; align-items: center; gap: 6px; }
+.flow-source {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--gray); min-width: 52px; text-align: right; flex-shrink: 0;
+}
+
+.flow-nodes { display: flex; align-items: center; gap: 4px; flex: 1; flex-wrap: nowrap; }
+
+.fnode {
+  border-radius: 8px; padding: 8px 10px; font-size: 11px;
+  border: 1.5px solid; flex: 1; min-width: 0;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+.fnode:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.fnode-label { font-size: 8.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; opacity: 0.6; margin-bottom: 2px; }
+.fnode-title { font-weight: 700; color: var(--navy); font-size: 11px; line-height: 1.3; }
+.fnode-items { margin-top: 4px; display: flex; flex-direction: column; gap: 1px; }
+.fnode-item { font-size: 10px; color: #4B5563; line-height: 1.4; }
+.fnode-item::before { content: '›  '; font-weight: 700; }
+
+.fnode.src  { background: #fff; }
+.fnode.api  { background: #EEF4FD; font-family: 'Courier New', monospace; }
+.fnode.api .fnode-item { color: var(--blue); font-family: 'Courier New', monospace; font-size: 9.5px; }
+.fnode.dest { background: #fff; }
+
+.farrow {
+  font-size: 16px; font-weight: 700; flex-shrink: 0; line-height: 1;
+}
+
+/* scenario divider within a flow section */
+.flow-divider {
+  border: none; border-top: 1px dashed rgba(21,76,138,0.15); margin: 6px 0;
+}
+
+/* ── STEP CARDS (ESPP) ── */
+.step-flow {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.step-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--white); border-radius: 8px; padding: 12px 14px;
+  border: 1.5px solid; transition: box-shadow 0.15s;
+}
+.step-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+.step-desc { font-size: 11px; color: var(--gray); line-height: 1.5; }
+.step-tag { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+
+/* ── JE CARDS (Accounting) ── */
+.je-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.je-card {
+  background: var(--white); border-radius: 8px; padding: 14px;
+  border: 1.5px solid; border-left-width: 4px;
+  transition: box-shadow 0.15s;
+}
+.je-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+.je-event { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.je-trigger { font-size: 10px; color: var(--gray); font-style: italic; margin-bottom: 8px; }
+.je-entry { display: flex; gap: 6px; align-items: baseline; margin-bottom: 3px; font-size: 10.5px; font-family: 'Courier New', monospace; }
+.je-dr { color: var(--red); font-weight: 800; min-width: 18px; }
+.je-cr { color: var(--green); font-weight: 800; min-width: 18px; }
+.je-divider { height: 1px; background: #f0f0f0; margin: 8px 0; }
+.je-note { font-size: 10px; color: var(--gray); line-height: 1.5; }
+
+/* ── NOTE BOX ── */
+.note-strip {
+  margin-top: 16px; padding: 10px 14px;
+  border-radius: 8px; font-size: 11.5px;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.note-strip strong { font-weight: 700; }
+
+/* ── FULL-WIDTH SECTION (when story + flow span full width) ── */
+.panel.full { grid-template-columns: 1fr; }
+.panel.full .panel-story { border-right: none; border-bottom: 1px solid var(--border); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .panel { grid-template-columns: 1fr; }
+  .panel-story { border-right: none; border-bottom: 1px solid var(--border); }
+  .je-grid { grid-template-columns: 1fr; }
+  .nav-rail { padding: 0 16px; overflow-x: auto; }
+  .page { padding: 24px 16px 60px; }
+  .site-header { padding: 24px 20px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ HEADER -->
+<header class="site-header">
+  <div class="hdr-eyebrow">Integration Architecture</div>
+  <div class="hdr-title">Equity Platform <span>Integration Data Flows</span></div>
+  <div class="hdr-sub">The story behind how data moves — Demographics · ESPP · GL Accounting</div>
+  <div class="hdr-pills">
+    <a class="hdr-pill" href="#demographics">01 Demographics</a>
+    <a class="hdr-pill" href="#espp">02 ESPP</a>
+    <a class="hdr-pill" href="#accounting">03 Accounting</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════ NAV -->
+<nav class="nav-rail">
+  <div class="nav-tab active" onclick="setTab(this,'demographics')">01 · Demographics</div>
+  <div class="nav-tab" onclick="setTab(this,'espp')">02 · ESPP</div>
+  <div class="nav-tab" onclick="setTab(this,'accounting')">03 · Accounting</div>
+</nav>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════ SECTION 1: DEMOGRAPHICS -->
+<section class="section" id="demographics">
+  <div class="section-badge" style="background:#EEF4FD; color:var(--blue);">
+    <span>●</span> Flow 01
+  </div>
+  <div class="section-title">Demographics — Participant Lifecycle</div>
+  <div class="section-sub">How employee records are created, maintained, and closed in the equity platform via HRIS</div>
+
+  <!-- NEW HIRE -->
+  <div class="panel">
+    <div class="panel-story">
+      <div class="panel-label" style="color:var(--green);">
+        <span style="background:var(--green)"></span> Story
+      </div>
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">New Hire</div>
+        <div class="story-headline">Sarah joins as a Senior Engineer on March 1st</div>
+        <div class="story-body">
+          The moment HR marks Sarah as <strong>Active</strong> in Workday, a new employee event fires. The equity platform — connected through Merge's HRIS API — picks this up within hours. It reads Sarah's <strong>start date, location (Austin, TX), pay group (bi-weekly), and job title</strong> to determine what she's eligible for.
+          <br><br>
+          Within the platform, a participant record is created automatically. Her vesting schedule is assigned based on her grant letter, and her participant portal is unlocked — all before her first day.
+        </div>
+        <div class="story-highlight" style="background:#ECFDF5; border-color:var(--green);">
+          <strong>Why it matters:</strong> No manual enrollment. Grants are tied to the correct participant from day one, with the right tax jurisdiction and pay cycle already set.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--blue)">Update</div>
+        <div class="story-headline">Sarah relocates from Austin to London in July</div>
+        <div class="story-body">
+          HR updates her location in Workday. The delta sync picks up the <strong>location change</strong>, and the equity platform recalculates her tax jurisdiction from Texas state tax to UK PAYE. Her next RSU vest will be taxed at UK rates — the system knows before payroll is even run.
+        </div>
+        <div class="story-highlight" style="background:#EEF4FD; border-color:var(--blue);">
+          <strong>Why it matters:</strong> Tax jurisdiction errors on mobile employees are one of the most common audit findings. Automatic location sync eliminates the risk.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--red)">Termination</div>
+        <div class="story-headline">Marcus resigns — his last day is October 15th</div>
+        <div class="story-body">
+          HR marks Marcus as <strong>Terminated</strong> with a reason code and last pay date. The equity platform immediately flags his unvested grants for forfeiture review against his plan document — unvested RSUs cancelled, vested shares queued for final payout processing.
+        </div>
+        <div class="story-highlight" style="background:#FFF5F5; border-color:var(--red);">
+          <strong>Why it matters:</strong> Forfeiture processing is time-sensitive. Missing the post-termination exercise window creates legal exposure. Automation closes this gap.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--amber)">Rehire</div>
+        <div class="story-headline">Marcus returns six months later as a contractor-to-hire</div>
+        <div class="story-body">
+          When Marcus is rehired, the system matches his <strong>original participant ID</strong> rather than creating a duplicate. His new grant policy is applied based on rehire rules in the plan document, and his vesting clock restarts cleanly.
+        </div>
+        <div class="story-highlight" style="background:#FFFBEB; border-color:var(--amber);">
+          <strong>Why it matters:</strong> Duplicate participant records are a major source of reconciliation errors. ID matching on rehire keeps the cap table clean.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-flow">
+      <div class="panel-label" style="color:var(--blue);">
+        <span style="background:var(--blue)"></span> Data Flow
+      </div>
+
+      <div class="flow-chain">
+
+        <!-- NEW HIRE ROW -->
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:3px;">New Hire</div>
+        <div class="flow-row">
+          <div class="flow-nodes">
+            <div class="fnode src" style="border-color:var(--green)88;">
+              <div class="fnode-label">HRIS Event</div>
+              <div class="fnode-title">New Employee Created</div>
+              <div class="fnode-items">
+                <div class="fnode-item">employee_id · start_date</div>
+                <div class="fnode-item">location · pay_group</div>
+                <div class="fnode-item">job_title · FTE%</div>
+              </div>
+            </div>
+            <div class="farrow" style="color:var(--green)">›</div>
+            <div class="fnode api" style="border-color:var(--green)88;">
+              <div class="fnode-label">Merge HRIS API</div>
+              <div class="fnode-item">GET /employees</div>
+              <div class="fnode-item">GET /employments</div>
+              <div class="fnode-item">GET /locations</div>
+              <div class="fnode-item">GET /pay-groups</div>
+            </div>
+            <div class="farrow" style="color:var(--green)">›</div>
+            <div class="fnode dest" style="border-color:var(--green)88;">
+              <div class="fnode-label">JPM WPS</div>
+              <div class="fnode-title">Participant Created</div>
+              <div class="fnode-items">
+                <div class="fnode-item">Eligibility validated</div>
+                <div class="fnode-item">Vesting schedule set</div>
+                <div class="fnode-item">Portal unlocked</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="flow-divider">
+
+        <!-- UPDATE ROW -->
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:3px;">Update</div>
+        <div class="flow-row">
+          <div class="flow-nodes">
+            <div class="fnode src" style="border-color:var(--blue)88;">
+              <div class="fnode-label">HRIS Delta</div>
+              <div class="fnode-title">Field Changed</div>
+              <div class="fnode-items">
+                <div class="fnode-item">location · compensation</div>
+                <div class="fnode-item">job_title · manager</div>
+              </div>
+            </div>
+            <div class="farrow" style="color:var(--blue)">›</div>
+            <div class="fnode api" style="border-color:var(--blue)88;">
+              <div class="fnode-label">Merge HRIS API</div>
+              <div class="fnode-item">GET /employees (delta)</div>
+              <div class="fnode-item">GET /locations</div>
+            </div>
+            <div class="farrow" style="color:var(--blue)">›</div>
+            <div class="fnode dest" style="border-color:var(--blue)88;">
+              <div class="fnode-label">JPM WPS</div>
+              <div class="fnode-title">Profile Updated</div>
+              <div class="fnode-items">
+                <div class="fnode-item">Tax jurisdiction reset</div>
+                <div class="fnode-item">Withholding recalculated</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="flow-divider">
+
+        <!-- TERMINATION ROW -->
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:3px;">Termination</div>
+        <div class="flow-row">
+          <div class="flow-nodes">
+            <div class="fnode src" style="border-color:var(--red)88;">
+              <div class="fnode-label">HRIS Event</div>
+              <div class="fnode-title">Employee Terminated</div>
+              <div class="fnode-items">
+                <div class="fnode-item">termination_date</div>
+                <div class="fnode-item">reason_code · last_pay</div>
+              </div>
+            </div>
+            <div class="farrow" style="color:var(--red)">›</div>
+            <div class="fnode api" style="border-color:var(--red)88;">
+              <div class="fnode-label">Merge HRIS API</div>
+              <div class="fnode-item">GET /employees (terminated)</div>
+              <div class="fnode-item">GET /time-off</div>
+            </div>
+            <div class="farrow" style="color:var(--red)">›</div>
+            <div class="fnode dest" style="border-color:var(--red)88;">
+              <div class="fnode-label">JPM WPS</div>
+              <div class="fnode-title">Forfeiture Processed</div>
+              <div class="fnode-items">
+                <div class="fnode-item">Unvested grants cancelled</div>
+                <div class="fnode-item">Final payout queued</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="flow-divider">
+
+        <!-- REHIRE ROW -->
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin-bottom:3px;">Rehire</div>
+        <div class="flow-row">
+          <div class="flow-nodes">
+            <div class="fnode src" style="border-color:var(--amber)88;">
+              <div class="fnode-label">HRIS Event</div>
+              <div class="fnode-title">Employee Rehired</div>
+              <div class="fnode-items">
+                <div class="fnode-item">original_id · rehire_date</div>
+                <div class="fnode-item">new_pay_group</div>
+              </div>
+            </div>
+            <div class="farrow" style="color:var(--amber)">›</div>
+            <div class="fnode api" style="border-color:var(--amber)88;">
+              <div class="fnode-label">Merge HRIS API</div>
+              <div class="fnode-item">GET /employees (active)</div>
+              <div class="fnode-item">Match participant_id</div>
+            </div>
+            <div class="farrow" style="color:var(--amber)">›</div>
+            <div class="fnode dest" style="border-color:var(--amber)88;">
+              <div class="fnode-label">JPM WPS</div>
+              <div class="fnode-title">Record Restored</div>
+              <div class="fnode-items">
+                <div class="fnode-item">Rehire policy applied</div>
+                <div class="fnode-item">Vesting clock reset</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end flow-chain -->
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ SECTION 2: ESPP -->
+<section class="section" id="espp">
+  <div class="section-badge" style="background:#ECFDF5; color:var(--green);">
+    <span>●</span> Flow 02
+  </div>
+  <div class="section-title">ESPP — From Eligibility to Payroll</div>
+  <div class="section-sub">How the platform determines who qualifies, captures elections, deducts from pay, and sends contributions to payroll</div>
+
+  <div class="panel">
+    <div class="panel-story">
+      <div class="panel-label" style="color:var(--green);">
+        <span style="background:var(--green)"></span> Story
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">Step 1 — Eligibility</div>
+        <div class="story-headline">Who qualifies for this offering period?</div>
+        <div class="story-body">
+          At the start of each offering period, the platform pulls the full employee roster from the HRIS. It filters out contractors, part-time employees working fewer than 20 hours per week, and employees in non-participating entities. What remains is a clean <strong>eligible participant list</strong> — automatically, with no spreadsheet.
+          <br><br>
+          Location data determines which offering plan applies — US employees get the standard 15% discount plan; employees in the UK follow a Share Incentive Plan (SIP) under different rules.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">Step 2 — Enrollment</div>
+        <div class="story-headline">Employees elect their contribution percentage</div>
+        <div class="story-body">
+          Eligible employees log into the participant portal and elect a <strong>percentage of gross pay</strong> (typically 1–15%). The platform validates each election against the IRS annual limit of <strong>$25,000 in fair market value</strong> per year. Employees who try to elect too much are auto-capped.
+          <br><br>
+          The enrollment data is stored against each participant's pay group and pay frequency — because the deduction amount changes depending on whether payroll runs weekly, bi-weekly, or monthly.
+        </div>
+        <div class="story-highlight" style="background:#ECFDF5; border-color:var(--green);">
+          <strong>Contribution = Elected % × Gross Pay per period</strong><br>
+          E.g. 10% election, $8,000 bi-weekly gross → $800 deducted each paycheck
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">Step 3 — Per-Pay Deduction</div>
+        <div class="story-headline">Every paycheck, the deduction file goes out</div>
+        <div class="story-body">
+          Before each payroll lock date, the platform generates a <strong>contribution file</strong> segmented by pay group and currency. For a global company running payroll in 8 countries, that's 8 separate files — each in the right format, the right currency, sent to the right payroll processor.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">Step 4 — Send to Payroll</div>
+        <div class="story-headline">Contributions land directly in payroll</div>
+        <div class="story-body">
+          The contribution file is pushed to ADP, Workday, or Dayforce via <strong>direct API or structured flat file</strong>, with fields that payroll can ingest without transformation: employee_id, deduction amount, pay date, plan ID, and offering period reference.
+          <br><br>
+          This replaces the manual upload process that many equity teams still use — a weekly fire drill of exporting a spreadsheet, reformatting it, and emailing it to payroll.
+        </div>
+        <div class="story-highlight" style="background:#FFF8F1; border-color:var(--amber);">
+          <strong>Note:</strong> Merge's HRIS API is read-only for payroll. The actual deduction write-back uses direct ADP/Workday payroll APIs or a structured flat file hand-off.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">Step 5 — Purchase & W-2 Reporting</div>
+        <div class="story-headline">End of offering period: shares purchased, income reported</div>
+        <div class="story-body">
+          At the end of the offering period, accumulated contributions are used to purchase shares at <strong>85% of the lower of the opening or closing price</strong>. The discount element is ordinary income — reported back to payroll for W-2 inclusion in Box 12 (Code V for qualifying dispositions).
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-flow">
+      <div class="panel-label" style="color:var(--green);">
+        <span style="background:var(--green)"></span> Data Flow
+      </div>
+
+      <div class="step-flow">
+
+        <div class="step-card" style="border-color:var(--green)66;">
+          <div class="step-num" style="background:var(--green)">1</div>
+          <div class="step-body">
+            <div class="step-title">Pull Eligibility from HRIS</div>
+            <div class="step-desc">
+              <code style="font-size:10px;color:var(--blue)">GET /employees</code> → filter on status=active, FTE≥50%, entity in plan<br>
+              <code style="font-size:10px;color:var(--blue)">GET /locations</code> → map to offering plan (US / UK / EU)<br>
+              <code style="font-size:10px;color:var(--blue)">GET /pay-groups</code> → set deduction frequency
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:18px;color:var(--green);line-height:1">↓</div>
+
+        <div class="step-card" style="border-color:var(--green)66;">
+          <div class="step-num" style="background:var(--green)">2</div>
+          <div class="step-body">
+            <div class="step-title">Enrollment Window Opens</div>
+            <div class="step-desc">
+              Employee elects 1–15% of gross pay via participant portal<br>
+              Platform validates against IRS $25K FMV annual cap<br>
+              Election stored per pay_group + pay_frequency
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:18px;color:var(--green);line-height:1">↓</div>
+
+        <div class="step-card" style="border-color:var(--green)66;">
+          <div class="step-num" style="background:var(--green)">3</div>
+          <div class="step-body">
+            <div class="step-title">Per-Pay Contribution Calculation</div>
+            <div class="step-desc">
+              <strong>Amount</strong> = elected% × gross pay (each payroll cycle)<br>
+              Contribution file generated per pay group + currency<br>
+              Sent before payroll lock date
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:18px;color:var(--green);line-height:1">↓</div>
+
+        <div class="step-card" style="border-color:var(--green)66;">
+          <div class="step-num" style="background:var(--green)">4</div>
+          <div class="step-body">
+            <div class="step-title">Push to Payroll <span class="step-tag" style="background:#FEF3C7;color:var(--amber);">⚠ Direct API</span></div>
+            <div class="step-desc">
+              Fields: <code style="font-size:10px;color:var(--blue)">employee_id · amount · pay_date · plan_id · offering_period</code><br>
+              Target: ADP Workforce Now · Workday · Dayforce · Paychex<br>
+              Method: REST API or structured flat file per processor spec
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:18px;color:var(--green);line-height:1">↓</div>
+
+        <div class="step-card" style="border-color:var(--green)66;">
+          <div class="step-num" style="background:var(--green)">5</div>
+          <div class="step-body">
+            <div class="step-title">Purchase Event + W-2 Reporting</div>
+            <div class="step-desc">
+              Purchase price = 85% of lower of open/close FMV<br>
+              Bargain element = (FMV − purchase price) × shares<br>
+              Reported as ordinary income → W-2 Box 12 / payroll write-back
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ SECTION 3: ACCOUNTING -->
+<section class="section" id="accounting">
+  <div class="section-badge" style="background:#F3F0FF; color:var(--purple);">
+    <span>●</span> Flow 03
+  </div>
+  <div class="section-title">Accounting — Journal Entry Flow (ASC 718)</div>
+  <div class="section-sub">How equity events become GL entries, automatically posted via Merge Accounting API</div>
+
+  <div class="panel">
+    <div class="panel-story">
+      <div class="panel-label" style="color:var(--purple);">
+        <span style="background:var(--purple)"></span> Story
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--blue)">RSU Vest — Expense</div>
+        <div class="story-headline">500 RSUs vest for Elena on the 15th. The P&amp;L needs to reflect it.</div>
+        <div class="story-body">
+          The moment Elena's RSUs vest, the equity platform knows the fair market value — say $42.00 per share. That's <strong>$21,000 of stock-based compensation expense</strong> that must hit the income statement under ASC 718. The platform posts a journal entry directly to the GL: Debit to Compensation Expense (tagged to Elena's cost center in Engineering), Credit to APIC.
+          <br><br>
+          This happens automatically on vest date — no month-end manual journal needed.
+        </div>
+        <div class="story-highlight" style="background:#EEF4FD; border-color:var(--blue);">
+          DR Compensation Expense &nbsp;$21,000<br>
+          CR Additional Paid-in Capital &nbsp;$21,000
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--red)">RSU Vest — Tax Withholding</div>
+        <div class="story-headline">The same vest creates a tax liability that needs to clear</div>
+        <div class="story-body">
+          At vest, Elena owes income tax on $21,000 of ordinary income. The platform applies <strong>22% federal flat rate plus applicable state tax</strong> — roughly $5,460 in federal withholding. This is either net-settled (shares sold to cover) or withheld via payroll.
+          <br><br>
+          Either way, a second journal entry records the liability: Debit to Tax Withholding Payable, Credit to Cash or Payroll Clearing.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--amber)">Monthly Amortization</div>
+        <div class="story-headline">Month-end close: the accounting team needs stock comp accruals</div>
+        <div class="story-body">
+          Not all stock comp hits at vest. Under ASC 718 with <strong>graded vesting</strong>, each tranche of a 4-year grant is amortized separately over its vesting period. Every month-end, the platform calculates this period's expense for every unvested award — adjusted for the current forfeiture rate estimate — and posts journal entries to each employee's cost center.
+          <br><br>
+          The CFO gets a clean stock comp expense line that moves predictably, not in lumps.
+        </div>
+        <div class="story-highlight" style="background:#FFFBEB; border-color:var(--amber);">
+          Each tranche amortized independently · Forfeiture rate reduces expense · Posted monthly via batch
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--green)">ESPP Discount Expense</div>
+        <div class="story-headline">The ESPP isn't free — its discount is a comp expense too</div>
+        <div class="story-body">
+          Under ASC 718, the ESPP's 15% discount <em>plus</em> the look-back option create a combined fair value of approximately <strong>32% of the stock price</strong> (Black-Scholes on the option element). This is recognised as compensation expense over the offering period.
+          <br><br>
+          At purchase, the platform posts: Debit to ESPP Compensation Expense, Credit to APIC — keeping the balance sheet and P&amp;L fully reconciled.
+        </div>
+      </div>
+
+      <div class="story-scenario">
+        <div class="scenario-tag" style="background:var(--purple)">Merge GL Integration</div>
+        <div class="story-headline">One API write. Any supported GL receives it.</div>
+        <div class="story-body">
+          All journal entries are posted via <strong>Merge Accounting API's <code>POST /journal-entries</code></strong> endpoint. Before go-live, the implementation team runs a one-time Chart of Accounts mapping — linking "Compensation Expense" in the equity platform to the client's specific GL account code. After that, every entry posts correctly, forever.
+        </div>
+        <div class="story-highlight" style="background:#F3F0FF; border-color:var(--purple);">
+          <strong>Supported:</strong> NetSuite · Sage Intacct · Dynamics 365 BC · QuickBooks · Xero · Zoho Books<br>
+          <strong>Gap:</strong> SAP S/4HANA and Oracle Fusion require separate direct connectors
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-flow">
+      <div class="panel-label" style="color:var(--purple);">
+        <span style="background:var(--purple)"></span> Journal Entry Flow
+      </div>
+
+      <div class="je-grid">
+
+        <div class="je-card" style="border-color:var(--blue); border-left-color:var(--blue);">
+          <div class="je-event" style="color:var(--blue)">RSU Vest — Expense Recognition</div>
+          <div class="je-trigger">Trigger: vest date · FMV × shares</div>
+          <div class="je-entry"><span class="je-dr">DR</span> Compensation Expense (by dept)</div>
+          <div class="je-entry"><span class="je-cr">CR</span> Additional Paid-in Capital</div>
+          <div class="je-divider"></div>
+          <div class="je-note">Amount = FMV on vest date × shares vested<br>Cost center tagged to employee's department</div>
+        </div>
+
+        <div class="je-card" style="border-color:var(--red); border-left-color:var(--red);">
+          <div class="je-event" style="color:var(--red)">RSU Vest — Tax Withholding</div>
+          <div class="je-trigger">Trigger: vest → supplemental income event</div>
+          <div class="je-entry"><span class="je-dr">DR</span> Tax Withholding Payable</div>
+          <div class="je-entry"><span class="je-cr">CR</span> Cash / Payroll Clearing</div>
+          <div class="je-divider"></div>
+          <div class="je-note">22% federal flat + state rate<br>Net-settle (sell-to-cover) or payroll deduction</div>
+        </div>
+
+        <div class="je-card" style="border-color:var(--amber); border-left-color:var(--amber);">
+          <div class="je-event" style="color:var(--amber)">Monthly ASC 718 Amortization</div>
+          <div class="je-trigger">Trigger: month-end close batch run</div>
+          <div class="je-entry"><span class="je-dr">DR</span> Stock-Based Comp Expense</div>
+          <div class="je-entry"><span class="je-cr">CR</span> APIC — Unvested Awards</div>
+          <div class="je-divider"></div>
+          <div class="je-note">Graded vesting: each tranche amortized separately<br>Adjusted for forfeiture rate estimate</div>
+        </div>
+
+        <div class="je-card" style="border-color:var(--green); border-left-color:var(--green);">
+          <div class="je-event" style="color:var(--green)">ESPP — Discount Expense</div>
+          <div class="je-trigger">Trigger: ESPP purchase date (end of offering)</div>
+          <div class="je-entry"><span class="je-dr">DR</span> ESPP Compensation Expense</div>
+          <div class="je-entry"><span class="je-cr">CR</span> Additional Paid-in Capital</div>
+          <div class="je-divider"></div>
+          <div class="je-note">15% discount + look-back ≈ 32% fair value<br>Black-Scholes on option element</div>
+        </div>
+
+      </div>
+
+      <!-- Merge GL flow strip -->
+      <div style="margin-top:16px; background:var(--white); border-radius:8px; padding:14px; border:1.5px solid rgba(109,40,217,0.2);">
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--purple);margin-bottom:10px;">How it posts to the GL</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div style="background:#F3F0FF;border:1px solid rgba(109,40,217,0.2);border-radius:6px;padding:6px 10px;font-size:10px;font-weight:700;color:var(--purple);">JPM WPS<br><span style="font-weight:400;color:var(--gray)">Calculates JE</span></div>
+          <div style="font-size:16px;color:var(--purple);font-weight:700;">›</div>
+          <div style="background:#F3F0FF;border:1px solid rgba(109,40,217,0.2);border-radius:6px;padding:6px 10px;font-size:10px;font-weight:700;color:var(--purple);">Merge API<br><span style="font-weight:400;font-family:monospace;color:var(--blue)">POST /journal-entries</span></div>
+          <div style="font-size:16px;color:var(--purple);font-weight:700;">›</div>
+          <div style="background:#F3F0FF;border:1px solid rgba(109,40,217,0.2);border-radius:6px;padding:6px 10px;font-size:10px;">
+            <div style="font-weight:700;color:var(--navy);margin-bottom:3px;">GL System</div>
+            <div style="color:var(--gray);font-size:9.5px;line-height:1.6;">NetSuite · Intacct<br>Dynamics · QuickBooks<br>Xero · Zoho</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--amber);background:#FFFBEB;padding:6px 10px;border-radius:5px;border-left:3px solid var(--amber);">
+          ⚠ SAP S/4HANA and Oracle Fusion ERP require direct connectors outside of Merge
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</div><!-- end page -->
+
+<script>
+function setTab(el, sectionId) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+}
+
+// Update active nav tab on scroll
+const sections = ['demographics', 'espp', 'accounting'];
+const tabs = document.querySelectorAll('.nav-tab');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target.id);
+      if (idx >= 0) {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabs[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+
+</body>
+</html>
