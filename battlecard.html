@@ -388,6 +388,69 @@ footer .footer-brand {
 </style>
 </head>
 <body>
+<script>
+(function(){
+  var PWD = 'JPMWS';
+  var KEY = 'eq_auth';
+  if(sessionStorage.getItem(KEY) === '1') return;
+  // Hide body content
+  document.documentElement.style.overflow = 'hidden';
+  var overlay = document.createElement('div');
+  overlay.id = 'pw-overlay';
+  overlay.innerHTML = `
+    <div style="
+      position:fixed;inset:0;z-index:99999;
+      background:linear-gradient(135deg,#0d1b2e 0%,#154C8A 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Inter',sans-serif;">
+      <div style="
+        background:#fff;border-radius:16px;padding:48px 44px;
+        max-width:380px;width:90%;text-align:center;
+        box-shadow:0 24px 80px rgba(0,0,0,0.4);">
+        <div style="font-size:32px;margin-bottom:8px;">🔒</div>
+        <div style="font-size:22px;font-weight:800;color:#0d1b2e;margin-bottom:6px;">Protected Page</div>
+        <div style="font-size:13px;color:#6b7280;margin-bottom:28px;">Enter the access password to continue</div>
+        <input id="pw-input" type="password" placeholder="Password" style="
+          width:100%;box-sizing:border-box;
+          padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;
+          font-size:15px;outline:none;text-align:center;letter-spacing:2px;
+          transition:border 0.2s;" />
+        <div id="pw-err" style="color:#dc2626;font-size:12px;margin-top:8px;min-height:16px;"></div>
+        <button id="pw-btn" style="
+          margin-top:12px;width:100%;padding:13px;
+          background:#154C8A;color:#fff;border:none;border-radius:8px;
+          font-size:15px;font-weight:700;cursor:pointer;
+          transition:background 0.2s;">Unlock</button>
+        <div style="margin-top:20px;font-size:11px;color:#9ca3af;">Equity Management · Competitive Intelligence 2026</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  function tryUnlock(){
+    var v = document.getElementById('pw-input').value;
+    if(v === PWD){
+      sessionStorage.setItem(KEY,'1');
+      document.getElementById('pw-overlay').remove();
+      document.documentElement.style.overflow = '';
+    } else {
+      document.getElementById('pw-err').textContent = 'Incorrect password. Please try again.';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+  document.getElementById('pw-btn').addEventListener('click', tryUnlock);
+  document.getElementById('pw-input').addEventListener('keydown', function(e){
+    if(e.key==='Enter') tryUnlock();
+    document.getElementById('pw-err').textContent = '';
+  });
+  document.getElementById('pw-input').addEventListener('focus', function(){
+    this.style.borderColor='#154C8A';
+  });
+  document.getElementById('pw-input').addEventListener('blur', function(){
+    this.style.borderColor='#e5e7eb';
+  });
+})();
+</script>
+
 
 <header>
 <div class="header-accent-bar"></div>
