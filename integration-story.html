@@ -653,11 +653,12 @@ body {
         <div class="step-card" style="border-color:var(--green)66;">
           <div class="step-num" style="background:var(--green)">5</div>
           <div class="step-body">
-            <div class="step-title">Purchase Event + W-2 Reporting</div>
+            <div class="step-title">Read Contribution Adjustments from Payroll <span class="step-tag" style="background:#D1FAE5;color:#065F46;">✓ Read API</span></div>
             <div class="step-desc">
-              Purchase price = 85% of lower of open/close FMV<br>
-              Bargain element = (FMV − purchase price) × shares<br>
-              Reported as ordinary income → W-2 Box 12 / payroll write-back
+              <code style="font-size:10px;color:var(--blue)">GET /payroll-runs → actual_deduction_amount per employee</code><br>
+              Source: ADP Workforce Now · Workday · Dayforce · Paychex<br>
+              Reconciles elected vs. actual · updates accumulation balance<br>
+              Flags mid-period changes: LOA · salary adj · voluntary stop
             </div>
           </div>
         </div>
