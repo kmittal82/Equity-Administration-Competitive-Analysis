@@ -465,12 +465,31 @@ const CATS = [
   },
   { id:'transactions', title:'Transactions', icon:'ti-arrows-exchange',
     caps:[
-      { label:'Grant Transactions', items:[
-        'Process option exercise',
-        'Process RSU / RSA / PSU release and settlement',
-        'Process ESPP purchase',
+      { label:'Exercise Transactions', items:[
+        'Process option exercise — cash',
+        'Process option exercise — cashless / same-day-sale',
+        'Process option exercise — sell-to-cover',
+        'Process option exercise — net-share-settle',
+        'Process SAR (Stock Appreciation Right) exercise',
+        'Process warrant exercise'
+      ]},
+      { label:'Release Transactions', items:[
+        'Process RSU release and settlement',
+        'Process RSA release',
+        'Process PSU release and settlement',
+        'Apply share withholding / net settlement at release',
+        'Process deferred RSU distribution'
+      ]},
+      { label:'ESPP Transactions', items:[
+        'Process ESPP offering period purchase',
+        'Process ESPP contribution refund or withdrawal',
+        'Track ESPP qualifying vs. disqualifying disposition'
+      ]},
+      { label:'Award Events', items:[
         'Record vest event',
-        'Process grant forfeiture'
+        'Process grant forfeiture',
+        'Process grant expiration',
+        'Process grant cancellation'
       ]},
       { label:'Share Transactions', items:[
         'Process open-market sale',
