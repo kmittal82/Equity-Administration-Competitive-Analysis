@@ -291,10 +291,132 @@
 
   .detail-footer { max-width: 1200px; margin: 0 auto; padding: 0 48px 32px; border-top: 1px solid var(--border); padding-top: 20px; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; gap: 8px; }
 
+  /* ════════════════════
+     EDIT MODE, TAGS, MODALS
+  ════════════════════ */
+  .tbtn.toggle.active { background: var(--gold); border-color: var(--gold); color: var(--white); }
+  .tbtn.toggle.active:hover { background: var(--gold-mid); }
+  .edit-only { display: none !important; }
+  body.edit-mode .edit-only { display: inline-flex !important; }
+  body.edit-mode .card { box-shadow: inset 3px 0 0 var(--gold); }
+  .icon-btn.danger:hover { background: #DC3545; color: var(--white); border-color: #DC3545; }
+  .inline-act { cursor: pointer; padding: 0 3px; }
+
+  /* Tag chips */
+  .tag-chip {
+    display: inline-flex; align-items: center;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+    padding: 1px 7px; border-radius: 10px;
+    color: var(--white); line-height: 1.5; vertical-align: middle; white-space: nowrap;
+  }
+  .tag-chip-row { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 6px; vertical-align: middle; }
+
+  /* Tag filter strip */
+  .tag-filter-row {
+    display: none; flex-wrap: wrap; align-items: center; gap: 6px;
+    margin-bottom: 16px; padding: 9px 14px;
+    background: var(--white); border: 1px solid var(--border); border-radius: 5px;
+  }
+  .tag-filter-row.shown { display: flex; }
+  .tag-filter-label { font-size: 10px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
+  .tag-filter-chip {
+    display: inline-flex; align-items: center;
+    font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 12px;
+    border: 1px solid; cursor: pointer; background: var(--white); transition: all 0.12s;
+  }
+  .tag-filter-chip:hover { transform: translateY(-1px); }
+  .tag-filter-clear { font-size: 10px; color: var(--text-muted); cursor: pointer; margin-left: auto; text-decoration: underline; background: none; border: none; font-family: inherit; }
+
+  /* + Add affordances */
+  .add-card {
+    background: transparent; border: 2px dashed var(--border-mid); border-radius: 5px;
+    display: none; align-items: center; justify-content: center;
+    color: var(--text-muted); cursor: pointer; transition: all 0.13s;
+    font-size: 13px; font-weight: 500; min-height: 70px; padding: 18px;
+  }
+  body.edit-mode .add-card { display: flex; }
+  .add-card:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-faint); }
+  .add-card i { font-size: 18px; margin-right: 6px; }
+  .add-inline {
+    background: var(--gold-light); color: var(--gold); border: 1px dashed var(--gold-mid);
+    font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 3px;
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 8px;
+  }
+  .add-inline:hover { background: var(--gold-mid); color: var(--white); }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 32, 91, 0.55);
+    z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 8px; max-width: 580px; width: 100%;
+    max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 12px 48px rgba(0, 32, 91, 0.3);
+  }
+  .modal-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 15px; font-weight: 600; color: var(--navy-dark); }
+  .modal-close { background: transparent; border: none; cursor: pointer; color: var(--text-muted); font-size: 18px; padding: 4px; line-height: 1; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 18px 22px; overflow-y: auto; flex: 1; }
+  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .modal-footer-right { display: flex; gap: 8px; }
+
+  .field { margin-bottom: 16px; }
+  .field-label { display: block; font-size: 10px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.9px; }
+  .field-input, .field-select, .field-textarea {
+    width: 100%; padding: 8px 12px; font-size: 13px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 5px; background: var(--white);
+    color: var(--text); outline: none; transition: border-color 0.13s;
+  }
+  .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--navy); }
+  .field-textarea { min-height: 70px; resize: vertical; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row > .field { flex: 1; }
+  .color-input { width: 100%; height: 38px; padding: 3px; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; background: var(--white); }
+  .icon-hint { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Tag manager */
+  .tag-mgr-list { display: flex; flex-direction: column; gap: 8px; }
+  .tag-mgr-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; }
+  .tag-mgr-color { width: 32px; height: 32px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); padding: 2px; background: var(--white); }
+  .tag-mgr-name { flex: 1; padding: 6px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: 3px; background: var(--white); font-family: inherit; color: var(--text); outline: none; }
+  .tag-mgr-name:focus { border-color: var(--navy); }
+
+  /* Tag picker */
+  .tag-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-pick {
+    display: inline-flex; align-items: center;
+    font-size: 11px; font-weight: 600; padding: 4px 11px; border-radius: 12px;
+    border: 2px solid; cursor: pointer; background: var(--white); transition: all 0.12s;
+    opacity: 0.6; user-select: none;
+  }
+  .tag-pick:hover { opacity: 0.9; }
+  .tag-pick.selected { color: var(--white); opacity: 1; }
+  .tag-empty { font-size: 11px; color: var(--text-muted); padding: 8px; }
+
+  /* Buttons */
+  .btn-primary { background: var(--navy); color: var(--white); border: 1px solid var(--navy); padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 5px; cursor: pointer; font-family: inherit; }
+  .btn-primary:hover { background: var(--navy-mid); }
+  .btn-secondary { background: var(--white); color: var(--text-mid); border: 1px solid var(--border); padding: 8px 16px; font-size: 12px; font-weight: 500; border-radius: 5px; cursor: pointer; font-family: inherit; }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-danger { background: transparent; color: #DC3545; border: 1px solid #DC3545; padding: 8px 14px; font-size: 12px; font-weight: 500; border-radius: 5px; cursor: pointer; font-family: inherit; }
+  .btn-danger:hover { background: #DC3545; color: var(--white); }
+
+  /* Edit-mode local-only note */
+  .edit-note {
+    display: none; padding: 8px 14px; margin-bottom: 14px;
+    background: var(--gold-light); border: 1px solid var(--gold-mid); border-radius: 5px;
+    font-size: 11px; color: var(--gold);
+  }
+  body.edit-mode .edit-note { display: block; }
+
   /* Print */
   @media print {
     body { background: #fff; }
-    .topbar, .toolbar, .stats-row, .cat-nav-strip, .detail-hero-nav, .detail-search-row, .back-btn { display: none !important; }
+    .topbar, .toolbar, .stats-row, .cat-nav-strip, .detail-hero-nav, .detail-search-row, .back-btn, .add-card, .edit-only, .tag-filter-row, .edit-note { display: none !important; }
     .detail-hero { background: #00205B; }
     .detail-cap-card { break-inside: avoid; }
     .page { display: block !important; }
@@ -343,10 +465,20 @@
         </div>
         <button class="tbtn" onclick="toggleAll(true)"><i class="ti ti-layout-list"></i> Expand all</button>
         <button class="tbtn" onclick="toggleAll(false)"><i class="ti ti-layout-columns"></i> Collapse all</button>
+        <button class="tbtn toggle" id="editToggle" onclick="toggleEditMode()"><i class="ti ti-pencil"></i> Edit</button>
+        <button class="tbtn edit-only" onclick="openTagManager()"><i class="ti ti-tags"></i> Tags</button>
+        <button class="tbtn edit-only" onclick="exportState()"><i class="ti ti-download"></i> Export</button>
+        <button class="tbtn edit-only" onclick="document.getElementById('importInput').click()"><i class="ti ti-upload"></i> Import</button>
+        <button class="tbtn edit-only" onclick="resetState()"><i class="ti ti-refresh"></i> Reset</button>
+        <input type="file" id="importInput" accept=".json" style="display:none" onchange="importState(event)">
         <button class="tbtn primary" onclick="window.print()"><i class="ti ti-printer"></i> Print / PDF</button>
       </div>
     </div>
+    <div class="edit-note">
+      <i class="ti ti-info-circle"></i> Edit mode is on. Changes are stored locally in your browser. Use <b>Export</b> to download JSON and commit it to make changes permanent for everyone.
+    </div>
     <div class="stats-row" id="statsRow"></div>
+    <div class="tag-filter-row" id="tagFilterRow"></div>
     <div class="grid" id="grid">
       <div class="no-results" id="noResults"><i class="ti ti-search-off"></i>No capabilities matched your search</div>
     </div>
@@ -407,8 +539,22 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════
+     MODAL (reused for all editors)
+════════════════════════════ -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">—</div>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
 <script>
-const CATS = [
+const DEFAULT_CATS = [
   { id:'participants', title:'Participants', icon:'ti-users',
     caps:[{ items:[
       'Create participant record',
@@ -607,86 +753,219 @@ const CATS = [
   }
 ];
 
-/* ── INIT ── */
-function capCount(c){ return c.caps.reduce((s,b)=>s+b.items.length,0); }
-const total = CATS.reduce((s,c)=>s+capCount(c),0);
+/* ════════════════════
+   STATE & PERSISTENCE
+════════════════════ */
+const STORAGE_KEY = 'jpms-capmap-v1';
+const DEFAULT_TAGS = [
+  { id:'mvp',        name:'MVP',           color:'#1A8754' },
+  { id:'roadmap',    name:'Roadmap',       color:'#0D6EFD' },
+  { id:'at-risk',    name:'At Risk',       color:'#DC3545' },
+  { id:'legal',      name:'Legal',         color:'#6F42C1' },
+  { id:'compliance', name:'Compliance',    color:'#FD7E14' },
+  { id:'priority',   name:'High Priority', color:'#B07A00' }
+];
+const rid = () => Math.random().toString(36).slice(2,9);
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function migrateDefaults(){
+  return {
+    categories: DEFAULT_CATS.map(c => ({
+      id: c.id, title: c.title, icon: c.icon, color: '#003087',
+      caps: c.caps.map(b => ({
+        id: rid(), label: b.label || '',
+        items: b.items.map(t => ({ id: rid(), text: t, tags: [] }))
+      }))
+    })),
+    tags: DEFAULT_TAGS.slice()
+  };
+}
+function loadState(){
+  try{ const s = localStorage.getItem(STORAGE_KEY); if(s) return JSON.parse(s); }catch(e){}
+  return migrateDefaults();
+}
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+
+let state = loadState();
+let editMode = false;
+let currentDetailIdx = 0;
+let activeTagFilters = new Set();
+
+const tagById = id => state.tags.find(t=>t.id===id);
+const catById = id => state.categories.find(c=>c.id===id);
+const bandById = (cid, bid) => { const c=catById(cid); return c?c.caps.find(b=>b.id===bid):null; };
+const itemById = (cid, bid, iid) => { const b=bandById(cid,bid); return b?b.items.find(i=>i.id===iid):null; };
+const capCount = c => c.caps.reduce((s,b)=>s+b.items.length,0);
+
 const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-document.getElementById('capMeta').textContent = total + ' total capabilities';
 document.getElementById('footerDate').textContent = 'Generated ' + dateStr;
 document.getElementById('detailFooterDate').textContent = 'Generated ' + dateStr;
 
-/* Stats */
-const sr = document.getElementById('statsRow');
-[{v:CATS.length,l:'Domain Categories'},{v:total,l:'Total Capabilities'},{v:CATS.filter(c=>c.caps.length>1).length,l:'Multi-band Categories'}].forEach(s=>{
-  sr.innerHTML+=`<div class="stat-card"><div class="stat-val">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`;
-});
+/* ════════════════════
+   RENDER
+════════════════════ */
+function renderStats(){
+  const total = state.categories.reduce((s,c)=>s+capCount(c),0);
+  document.getElementById('capMeta').textContent = total + ' total capabilities · ' + state.tags.length + ' tags';
+  const sr = document.getElementById('statsRow');
+  sr.innerHTML = '';
+  [
+    { v: state.categories.length, l: 'Domain Categories' },
+    { v: total, l: 'Total Capabilities' },
+    { v: state.categories.filter(c=>c.caps.length>1).length, l: 'Multi-band Categories' },
+    { v: state.tags.length, l: 'Tags' }
+  ].forEach(s=>{
+    sr.innerHTML += `<div class="stat-card"><div class="stat-val">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`;
+  });
+}
 
-/* Category nav strip */
-const navInner = document.getElementById('catNavInner');
-CATS.forEach((c,i)=>{
-  const el = document.createElement('div');
-  el.className='cat-nav-item'; el.id='navItem-'+c.id;
-  el.innerHTML=`<i class="ti ${c.icon}" style="font-size:13px"></i>${c.title}`;
-  el.onclick=()=>openDetail(i);
-  navInner.appendChild(el);
-});
+function renderTagFilter(){
+  const row = document.getElementById('tagFilterRow');
+  if(state.tags.length === 0){ row.classList.remove('shown'); return; }
+  row.classList.add('shown');
+  let html = `<span class="tag-filter-label">Filter by tag</span>`;
+  state.tags.forEach(t=>{
+    const active = activeTagFilters.has(t.id);
+    const style = active ? `background:${t.color};border-color:${t.color};color:#fff` : `border-color:${t.color};color:${t.color}`;
+    html += `<span class="tag-filter-chip" style="${style}" onclick="toggleTagFilter('${t.id}')">${esc(t.name)}</span>`;
+  });
+  if(activeTagFilters.size > 0){
+    html += `<button class="tag-filter-clear" onclick="clearTagFilters()">Clear filters</button>`;
+  }
+  row.innerHTML = html;
+}
+function toggleTagFilter(id){
+  if(activeTagFilters.has(id)) activeTagFilters.delete(id); else activeTagFilters.add(id);
+  renderTagFilter();
+  rerenderItemsOnly();
+}
+function clearTagFilters(){ activeTagFilters.clear(); renderTagFilter(); rerenderItemsOnly(); }
+function itemPassesTagFilter(item){
+  if(activeTagFilters.size === 0) return true;
+  return (item.tags||[]).some(tid => activeTagFilters.has(tid));
+}
 
-/* ── BUILD GRID CARDS ── */
-const grid = document.getElementById('grid');
+function renderCatNav(){
+  const nav = document.getElementById('catNavInner');
+  nav.innerHTML = '';
+  state.categories.forEach((c,i)=>{
+    const el = document.createElement('div');
+    el.className = 'cat-nav-item';
+    el.id = 'navItem-' + c.id;
+    el.innerHTML = `<i class="ti ${c.icon}" style="font-size:13px"></i>${esc(c.title)}`;
+    el.onclick = () => openDetail(i);
+    nav.appendChild(el);
+  });
+}
+
+function tagChipsHtml(tagIds){
+  if(!tagIds || tagIds.length === 0) return '';
+  let h = '<span class="tag-chip-row">';
+  tagIds.forEach(tid=>{
+    const t = tagById(tid); if(!t) return;
+    h += `<span class="tag-chip" style="background:${t.color}">${esc(t.name)}</span>`;
+  });
+  return h + '</span>';
+}
+
 function buildCard(cat, idx){
   const n = capCount(cat);
   const el = document.createElement('div');
-  el.className='card'; el.id='card-'+cat.id;
-  const bands = cat.caps.map(b=>{
-    const lbl = b.label?`<div class="band-label">${b.label}</div>`:'';
-    const lis = b.items.map(item=>
-      `<li class="cap-item" data-raw="${item.toLowerCase()}"><span class="cap-bullet"></span><span class="cap-text">${item}</span></li>`
-    ).join('');
-    return `<div class="band">${lbl}<ul class="cap-list">${lis}</ul></div>`;
+  el.className = 'card';
+  el.id = 'card-' + cat.id;
+  el.style.borderTop = '3px solid ' + (cat.color || '#003087');
+
+  const bandsHtml = cat.caps.map(b=>{
+    const lbl = b.label ? `<div class="band-label">${esc(b.label)}<span class="edit-only" style="margin-left:8px;gap:4px"><i class="ti ti-pencil inline-act" style="color:var(--gold)" onclick="event.stopPropagation();openBandEditor('${cat.id}','${b.id}')"></i><i class="ti ti-trash inline-act" style="color:#DC3545" onclick="event.stopPropagation();deleteBand('${cat.id}','${b.id}')"></i></span></div>` : '';
+    const lis = b.items.map(item=>{
+      const passes = itemPassesTagFilter(item);
+      return `<li class="cap-item" data-raw="${esc(item.text.toLowerCase())}" data-item-id="${item.id}"${!passes?' style="display:none"':''}><span class="cap-bullet"></span><span class="cap-text">${esc(item.text)}</span>${tagChipsHtml(item.tags)}<span class="edit-only" style="margin-left:auto;gap:6px"><i class="ti ti-pencil inline-act" style="color:var(--gold)" onclick="event.stopPropagation();openItemEditor('${cat.id}','${b.id}','${item.id}')"></i><i class="ti ti-trash inline-act" style="color:#DC3545" onclick="event.stopPropagation();deleteItem('${cat.id}','${b.id}','${item.id}')"></i></span></li>`;
+    }).join('');
+    return `<div class="band">${lbl}<ul class="cap-list">${lis}</ul><button class="add-inline edit-only" onclick="event.stopPropagation();openItemEditor('${cat.id}','${b.id}',null)"><i class="ti ti-plus"></i> Add capability</button></div>`;
   }).join('');
-  el.innerHTML=`
+
+  el.innerHTML = `
     <div class="card-header" onclick="toggle('${cat.id}')">
       <div class="card-header-left">
         <div class="card-num">${String(idx+1).padStart(2,'0')}</div>
-        <div class="card-icon"><i class="ti ${cat.icon}"></i></div>
+        <div class="card-icon" style="color:${cat.color||'#003087'}"><i class="ti ${cat.icon}"></i></div>
         <div class="card-info">
-          <div class="card-title">${cat.title}</div>
+          <div class="card-title">${esc(cat.title)}</div>
           <span class="cap-badge">${n} capabilities</span>
         </div>
       </div>
       <div class="card-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn edit-only" title="Edit category" onclick="openCategoryEditor('${cat.id}')"><i class="ti ti-pencil"></i></button>
+        <button class="icon-btn danger edit-only" title="Delete category" onclick="deleteCategory('${cat.id}')"><i class="ti ti-trash"></i></button>
         <button class="icon-btn" title="Open full-page view" onclick="openDetail(${idx})"><i class="ti ti-arrow-up-right"></i></button>
         <i class="ti ti-chevron-down chevron" id="chev-${cat.id}" onclick="event.stopPropagation();toggle('${cat.id}')"></i>
       </div>
     </div>
-    <div class="card-body" id="body-${cat.id}"><div class="card-body-inner">${bands}</div></div>`;
+    <div class="card-body" id="body-${cat.id}"><div class="card-body-inner">${bandsHtml}<button class="add-inline edit-only" onclick="openBandEditor('${cat.id}',null)"><i class="ti ti-plus"></i> Add band</button></div></div>`;
   return el;
 }
-CATS.forEach((c,i)=>grid.insertBefore(buildCard(c,i),document.getElementById('noResults')));
 
-/* ── GRID TOGGLE ── */
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  state.categories.forEach((cat,i)=> grid.appendChild(buildCard(cat,i)));
+  const nr = document.createElement('div');
+  nr.className = 'no-results'; nr.id = 'noResults';
+  nr.innerHTML = `<i class="ti ti-search-off"></i>No capabilities matched your search`;
+  grid.appendChild(nr);
+  const addCat = document.createElement('div');
+  addCat.className = 'add-card';
+  addCat.innerHTML = `<i class="ti ti-plus"></i> Add Category`;
+  addCat.onclick = () => openCategoryEditor(null);
+  grid.appendChild(addCat);
+}
+
+function rerenderItemsOnly(){
+  state.categories.forEach(cat=>{
+    const card = document.getElementById('card-'+cat.id);
+    if(!card) return;
+    let any = false;
+    cat.caps.forEach(b=>{
+      b.items.forEach(item=>{
+        const li = card.querySelector(`[data-item-id="${item.id}"]`);
+        if(!li) return;
+        const visible = itemPassesTagFilter(item);
+        li.style.display = visible ? '' : 'none';
+        if(visible) any = true;
+      });
+    });
+    card.classList.toggle('hidden', !any && activeTagFilters.size > 0);
+  });
+}
+
+function rerender(){
+  renderStats();
+  renderTagFilter();
+  renderCatNav();
+  renderGrid();
+  if(document.getElementById('detailPage').classList.contains('active')) renderDetail();
+}
+
+/* ════════════════════
+   TOGGLE / PAGE SWITCH
+════════════════════ */
 function toggle(id){
   document.getElementById('body-'+id).classList.toggle('open');
   document.getElementById('chev-'+id).classList.toggle('open');
 }
 function toggleAll(open){
-  CATS.forEach(c=>{
-    if(!document.getElementById('card-'+c.id).classList.contains('hidden')){
+  state.categories.forEach(c=>{
+    const card = document.getElementById('card-'+c.id);
+    if(card && !card.classList.contains('hidden')){
       document.getElementById('body-'+c.id).classList.toggle('open',open);
       document.getElementById('chev-'+c.id).classList.toggle('open',open);
     }
   });
 }
-
-/* ── PAGE SWITCH ── */
-let currentDetailIdx = 0;
-
 function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(name+'Page').classList.add('active');
   window.scrollTo(0,0);
-
-  // swap topbar right
   const tr = document.getElementById('topbarRight');
   if(name==='detail'){
     tr.innerHTML=`<button class="back-btn" onclick="showPage('grid')"><i class="ti ti-arrow-left"></i> Back to overview</button><span class="badge">Confidential</span>`;
@@ -694,132 +973,341 @@ function showPage(name){
     tr.innerHTML=`<span class="badge">Confidential</span><span class="badge">Internal</span>`;
   }
 }
-
-function openDetail(idx){
-  currentDetailIdx = idx;
-  renderDetail();
-  showPage('detail');
-}
-
+function openDetail(idx){ currentDetailIdx = idx; renderDetail(); showPage('detail'); }
 function navigateDetail(dir){
-  currentDetailIdx = Math.max(0, Math.min(CATS.length-1, currentDetailIdx+dir));
+  currentDetailIdx = Math.max(0, Math.min(state.categories.length-1, currentDetailIdx+dir));
   document.getElementById('detailSearch').value='';
   window.scrollTo(0,0);
   renderDetail();
 }
 
+/* ════════════════════
+   DETAIL PAGE
+════════════════════ */
 function renderDetail(){
-  const cat = CATS[currentDetailIdx];
+  const cat = state.categories[currentDetailIdx];
+  if(!cat) return;
   const n = capCount(cat);
-  const idx = currentDetailIdx;
-
-  /* hero */
-  document.getElementById('detailIcon').className='ti '+cat.icon;
-  document.getElementById('detailTitle').innerHTML = cat.title;
-  document.getElementById('detailCapCount').innerHTML=`<i class="ti ti-list"></i> ${n} capabilities`;
-  document.getElementById('detailBandCount').innerHTML=`<i class="ti ti-layout-rows"></i> ${cat.caps.length} section${cat.caps.length>1?'s':''}`;
-  document.getElementById('detailNavLabel').textContent=(idx+1)+' / '+CATS.length;
-  document.getElementById('prevCatBtn').disabled=idx===0;
-  document.getElementById('nextCatBtn').disabled=idx===CATS.length-1;
-
-  /* nav strip active */
+  document.getElementById('detailIcon').className = 'ti '+cat.icon;
+  document.getElementById('detailTitle').innerHTML = esc(cat.title);
+  document.getElementById('detailCapCount').innerHTML = `<i class="ti ti-list"></i> ${n} capabilities`;
+  document.getElementById('detailBandCount').innerHTML = `<i class="ti ti-layout-rows"></i> ${cat.caps.length} section${cat.caps.length>1?'s':''}`;
+  document.getElementById('detailNavLabel').textContent = (currentDetailIdx+1)+' / '+state.categories.length;
+  document.getElementById('prevCatBtn').disabled = currentDetailIdx===0;
+  document.getElementById('nextCatBtn').disabled = currentDetailIdx===state.categories.length-1;
   document.querySelectorAll('.cat-nav-item').forEach(el=>el.classList.remove('active'));
-  document.getElementById('navItem-'+cat.id).classList.add('active');
-
-  /* topbar doc */
+  const navEl = document.getElementById('navItem-'+cat.id);
+  if(navEl) navEl.classList.add('active');
   document.getElementById('topbarDoc').textContent = cat.title;
 
-  /* bands */
-  let capNum=1;
+  let capNum = 1;
   const bandsHtml = cat.caps.map(b=>{
-    const lbl = b.label||'Capabilities';
-    const cards = b.items.map(item=>{
-      const num=capNum++;
-      return `<div class="detail-cap-card" data-raw="${item.toLowerCase()}">
-        <span class="detail-cap-num">${num}</span>
-        <span class="detail-cap-text">${item}</span>
-      </div>`;
+    const lbl = b.label || 'Capabilities';
+    const filtered = b.items.filter(itemPassesTagFilter);
+    const cards = filtered.map(item=>{
+      const num = capNum++;
+      return `<div class="detail-cap-card" data-raw="${esc(item.text.toLowerCase())}" data-item-id="${item.id}"><span class="detail-cap-num">${num}</span><span class="detail-cap-text">${esc(item.text)}${tagChipsHtml(item.tags)}</span><span class="edit-only" style="margin-left:8px"><i class="ti ti-pencil inline-act" style="color:var(--gold)" onclick="openItemEditor('${cat.id}','${b.id}','${item.id}')"></i></span></div>`;
     }).join('');
-    return `<div class="detail-band">
-      <div class="detail-band-header">
-        <span class="detail-band-label">${lbl}</span>
-        <span class="detail-band-count">${b.items.length} capabilities</span>
-      </div>
-      <div class="detail-cap-grid">${cards}</div>
-    </div>`;
+    return `<div class="detail-band"><div class="detail-band-header"><span class="detail-band-label">${esc(lbl)}</span><span class="detail-band-count">${filtered.length} capabilities</span></div><div class="detail-cap-grid">${cards}</div></div>`;
   }).join('');
-
-  document.getElementById('detailBands').innerHTML=bandsHtml;
+  document.getElementById('detailBands').innerHTML = bandsHtml;
   updateDetailCount();
 }
 
 function filterDetail(){
   const q = document.getElementById('detailSearch').value.trim().toLowerCase();
   const cards = document.getElementById('detailBands').querySelectorAll('.detail-cap-card');
-  let vis=0;
+  let vis = 0;
   cards.forEach(card=>{
-    const raw=card.dataset.raw;
-    const txt=card.querySelector('.detail-cap-text');
-    const orig=raw.charAt(0).toUpperCase()+raw.slice(1);
-    if(!q||raw.includes(q)){
+    const raw = card.dataset.raw;
+    const txt = card.querySelector('.detail-cap-text');
+    // Preserve tag chip HTML — only rewrite the leading text content
+    const baseText = raw.charAt(0).toUpperCase()+raw.slice(1);
+    const chipsMatch = txt.innerHTML.match(/<span class="tag-chip-row">[\s\S]*<\/span>$/);
+    const chips = chipsMatch ? chipsMatch[0] : '';
+    if(!q || raw.includes(q)){
       card.classList.remove('filtered-out'); vis++;
-      if(q&&raw.includes(q)){
-        const i=orig.toLowerCase().indexOf(q);
-        txt.innerHTML=orig.slice(0,i)+'<mark class="hl">'+orig.slice(i,i+q.length)+'</mark>'+orig.slice(i+q.length);
-      } else txt.textContent=orig;
-    } else { card.classList.add('filtered-out'); txt.textContent=orig; }
+      if(q && raw.includes(q)){
+        const i = raw.indexOf(q);
+        txt.innerHTML = esc(baseText.slice(0,i))+'<mark class="hl">'+esc(baseText.slice(i,i+q.length))+'</mark>'+esc(baseText.slice(i+q.length))+chips;
+      } else {
+        txt.innerHTML = esc(baseText)+chips;
+      }
+    } else {
+      card.classList.add('filtered-out');
+      txt.innerHTML = esc(baseText)+chips;
+    }
   });
-  updateDetailCount(vis,cards.length);
+  updateDetailCount(vis, cards.length);
 }
 
-function updateDetailCount(vis,tot){
-  const cards=document.getElementById('detailBands').querySelectorAll('.detail-cap-card');
-  const t=tot!==undefined?tot:cards.length;
-  const v=vis!==undefined?vis:t;
-  document.getElementById('detailVisCount').textContent=v===t?t:(v+' of '+t);
+function updateDetailCount(vis, tot){
+  const cards = document.getElementById('detailBands').querySelectorAll('.detail-cap-card');
+  const t = tot !== undefined ? tot : cards.length;
+  const v = vis !== undefined ? vis : t;
+  document.getElementById('detailVisCount').textContent = v===t ? t : (v+' of '+t);
 }
 
-/* ── GRID SEARCH ── */
+/* ════════════════════
+   GRID SEARCH
+════════════════════ */
 function handleSearch(){
-  const q=document.getElementById('searchBox').value.trim().toLowerCase();
-  let vis=0;
-  CATS.forEach(cat=>{
-    const card=document.getElementById('card-'+cat.id);
-    const body=document.getElementById('body-'+cat.id);
-    const chev=document.getElementById('chev-'+cat.id);
-    const items=card.querySelectorAll('.cap-item');
-    const tm=cat.title.toLowerCase().includes(q);
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  let vis = 0;
+  state.categories.forEach(cat=>{
+    const card = document.getElementById('card-'+cat.id);
+    if(!card) return;
+    const body = document.getElementById('body-'+cat.id);
+    const chev = document.getElementById('chev-'+cat.id);
+    const items = card.querySelectorAll('.cap-item');
+    const tm = cat.title.toLowerCase().includes(q);
     if(!q){
       card.classList.remove('hidden');
-      items.forEach(li=>{ li.style.display=''; li.querySelector('.cap-text').textContent=li.dataset.raw.charAt(0).toUpperCase()+li.dataset.raw.slice(1); });
+      items.forEach(li=>{
+        const item = (function findItem(){
+          for(const b of cat.caps) for(const i of b.items) if(i.id===li.dataset.itemId) return i;
+          return null;
+        })();
+        li.style.display = item && !itemPassesTagFilter(item) ? 'none' : '';
+        li.querySelector('.cap-text').textContent = item ? item.text : (li.dataset.raw||'');
+      });
       body.classList.remove('open'); chev.classList.remove('open'); vis++; return;
     }
-    let any=false;
+    let any = false;
     items.forEach(li=>{
-      const raw=li.dataset.raw;
-      const orig=raw.charAt(0).toUpperCase()+raw.slice(1);
-      if(raw.includes(q)||tm){
-        li.style.display=''; any=true;
+      const raw = li.dataset.raw;
+      const item = (function findItem(){
+        for(const b of cat.caps) for(const i of b.items) if(i.id===li.dataset.itemId) return i;
+        return null;
+      })();
+      const baseText = item ? item.text : (raw.charAt(0).toUpperCase()+raw.slice(1));
+      const passesTag = !item || itemPassesTagFilter(item);
+      if((raw.includes(q) || tm) && passesTag){
+        li.style.display = ''; any = true;
         if(raw.includes(q)){
-          const i=orig.toLowerCase().indexOf(q);
-          li.querySelector('.cap-text').innerHTML=orig.slice(0,i)+'<mark class="hl">'+orig.slice(i,i+q.length)+'</mark>'+orig.slice(i+q.length);
-        } else li.querySelector('.cap-text').textContent=orig;
-      } else { li.style.display='none'; li.querySelector('.cap-text').textContent=orig; }
+          const i = raw.indexOf(q);
+          li.querySelector('.cap-text').innerHTML = esc(baseText.slice(0,i))+'<mark class="hl">'+esc(baseText.slice(i,i+q.length))+'</mark>'+esc(baseText.slice(i+q.length));
+        } else {
+          li.querySelector('.cap-text').textContent = baseText;
+        }
+      } else {
+        li.style.display = 'none';
+        li.querySelector('.cap-text').textContent = baseText;
+      }
     });
-    if(tm||any){ card.classList.remove('hidden'); body.classList.add('open'); chev.classList.add('open'); vis++; }
+    if(tm || any){ card.classList.remove('hidden'); body.classList.add('open'); chev.classList.add('open'); vis++; }
     else card.classList.add('hidden');
   });
-  document.getElementById('noResults').style.display=vis===0?'block':'none';
+  document.getElementById('noResults').style.display = vis===0 ? 'block' : 'none';
 }
 
-/* ── KEYBOARD ── */
-document.addEventListener('keydown',e=>{
+/* ════════════════════
+   EDIT MODE
+════════════════════ */
+function toggleEditMode(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.getElementById('editToggle').classList.toggle('active', editMode);
+}
+
+/* ════════════════════
+   MODAL FRAMEWORK
+════════════════════ */
+function openModal(title, bodyHtml, footerHtml){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFooter').innerHTML = footerHtml;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBackdrop').classList.remove('open'); }
+
+/* CATEGORY EDITOR */
+function openCategoryEditor(catId){
+  const cat = catId ? catById(catId) : null;
+  const isNew = !cat;
+  const t = cat ? cat.title : '';
+  const ic = cat ? cat.icon : 'ti-folder';
+  const cl = cat ? cat.color : '#003087';
+  openModal(isNew ? 'Add Category' : 'Edit Category',
+    `<div class="field"><label class="field-label">Title</label><input class="field-input" id="catTitle" type="text" value="${esc(t)}" placeholder="e.g. Privacy & DSR"></div>
+     <div class="field-row">
+       <div class="field"><label class="field-label">Icon</label><input class="field-input" id="catIcon" type="text" value="${esc(ic)}" placeholder="ti-folder"><div class="icon-hint">Tabler icon name. Browse at tabler-icons.io</div></div>
+       <div class="field" style="max-width:130px"><label class="field-label">Accent</label><input class="color-input" id="catColor" type="color" value="${cl}"></div>
+     </div>`,
+    `${isNew ? '<span></span>' : `<button class="btn-danger" onclick="deleteCategory('${catId}');closeModal();">Delete</button>`}
+     <div class="modal-footer-right">
+       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+       <button class="btn-primary" onclick="saveCategory(${isNew ? 'null' : "'"+catId+"'"})">Save</button>
+     </div>`);
+}
+function saveCategory(catId){
+  const title = document.getElementById('catTitle').value.trim();
+  const icon = document.getElementById('catIcon').value.trim() || 'ti-folder';
+  const color = document.getElementById('catColor').value;
+  if(!title){ alert('Title is required'); return; }
+  if(catId){
+    const c = catById(catId); c.title = title; c.icon = icon; c.color = color;
+  } else {
+    state.categories.push({ id:'cat-'+rid(), title, icon, color, caps:[{ id:rid(), label:'', items:[] }] });
+  }
+  save(); closeModal(); rerender();
+}
+function deleteCategory(catId){
+  if(!confirm('Delete this category and all its capabilities?')) return;
+  state.categories = state.categories.filter(c=>c.id!==catId);
+  save(); rerender();
+}
+
+/* BAND EDITOR */
+function openBandEditor(catId, bandId){
+  const band = bandId ? bandById(catId, bandId) : null;
+  const isNew = !band;
+  const lbl = band ? band.label : '';
+  openModal(isNew ? 'Add Band' : 'Edit Band',
+    `<div class="field"><label class="field-label">Band label (leave empty for an unlabeled band)</label><input class="field-input" id="bandLabel" type="text" value="${esc(lbl)}" placeholder="e.g. Plan Lifecycle"></div>`,
+    `${isNew ? '<span></span>' : `<button class="btn-danger" onclick="deleteBand('${catId}','${bandId}');closeModal();">Delete</button>`}
+     <div class="modal-footer-right">
+       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+       <button class="btn-primary" onclick="saveBand('${catId}',${isNew ? 'null' : "'"+bandId+"'"})">Save</button>
+     </div>`);
+}
+function saveBand(catId, bandId){
+  const lbl = document.getElementById('bandLabel').value.trim();
+  if(bandId){ bandById(catId, bandId).label = lbl; }
+  else { catById(catId).caps.push({ id:rid(), label:lbl, items:[] }); }
+  save(); closeModal(); rerender();
+}
+function deleteBand(catId, bandId){
+  if(!confirm('Delete this band and its capabilities?')) return;
+  const cat = catById(catId);
+  cat.caps = cat.caps.filter(b=>b.id!==bandId);
+  if(cat.caps.length===0) cat.caps.push({ id:rid(), label:'', items:[] });
+  save(); rerender();
+}
+
+/* ITEM EDITOR */
+function openItemEditor(catId, bandId, itemId){
+  const item = itemId ? itemById(catId, bandId, itemId) : null;
+  const isNew = !item;
+  const text = item ? item.text : '';
+  const selectedTags = new Set(item ? item.tags : []);
+  const tagsHtml = state.tags.length === 0
+    ? '<div class="tag-empty">No tags defined. Open <b>Tags</b> from the toolbar to create some.</div>'
+    : state.tags.map(t=>{
+        const sel = selectedTags.has(t.id);
+        const style = sel ? `background:${t.color};border-color:${t.color};color:#fff` : `border-color:${t.color};color:${t.color}`;
+        return `<span class="tag-pick ${sel?'selected':''}" style="${style}" data-tag-id="${t.id}" data-color="${t.color}" onclick="togglePick(this)">${esc(t.name)}</span>`;
+      }).join('');
+  openModal(isNew ? 'Add Capability' : 'Edit Capability',
+    `<div class="field"><label class="field-label">Capability description</label><textarea class="field-textarea" id="itemText" placeholder="e.g. Process option exercise — cash">${esc(text)}</textarea></div>
+     <div class="field"><label class="field-label">Tags</label><div class="tag-picker" id="tagPicker">${tagsHtml}</div></div>`,
+    `${isNew ? '<span></span>' : `<button class="btn-danger" onclick="deleteItem('${catId}','${bandId}','${itemId}');closeModal();">Delete</button>`}
+     <div class="modal-footer-right">
+       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+       <button class="btn-primary" onclick="saveItem('${catId}','${bandId}',${isNew ? 'null' : "'"+itemId+"'"})">Save</button>
+     </div>`);
+}
+function togglePick(el){
+  const sel = el.classList.toggle('selected');
+  const c = el.dataset.color;
+  el.style.cssText = sel ? `background:${c};border-color:${c};color:#fff` : `background:#fff;border-color:${c};color:${c}`;
+}
+function saveItem(catId, bandId, itemId){
+  const text = document.getElementById('itemText').value.trim();
+  if(!text){ alert('Text is required'); return; }
+  const tags = Array.from(document.querySelectorAll('#tagPicker .tag-pick.selected')).map(el=>el.dataset.tagId);
+  if(itemId){
+    const item = itemById(catId, bandId, itemId);
+    item.text = text; item.tags = tags;
+  } else {
+    bandById(catId, bandId).items.push({ id:rid(), text, tags });
+  }
+  save(); closeModal(); rerender();
+}
+function deleteItem(catId, bandId, itemId){
+  if(!confirm('Delete this capability?')) return;
+  const band = bandById(catId, bandId);
+  band.items = band.items.filter(i=>i.id!==itemId);
+  save(); rerender();
+}
+
+/* TAG MANAGER */
+function openTagManager(){
+  const rows = state.tags.length === 0
+    ? '<div class="tag-empty" style="text-align:center;padding:24px">No tags yet</div>'
+    : state.tags.map(t=>`<div class="tag-mgr-row" data-tag-id="${t.id}">
+        <input type="color" class="tag-mgr-color" value="${t.color}" onchange="updateTagColor('${t.id}', this.value)">
+        <input type="text" class="tag-mgr-name" value="${esc(t.name)}" onchange="updateTagName('${t.id}', this.value)">
+        <button class="icon-btn danger" onclick="deleteTag('${t.id}')"><i class="ti ti-trash"></i></button>
+      </div>`).join('');
+  openModal('Manage Tags',
+    `<div class="tag-mgr-list" id="tagMgrList">${rows}</div>
+     <button class="add-inline" style="margin-top:14px" onclick="addNewTag()"><i class="ti ti-plus"></i> Add tag</button>`,
+    `<span></span><div class="modal-footer-right"><button class="btn-primary" onclick="closeModal();rerender();">Done</button></div>`);
+}
+function addNewTag(){
+  const palette = ['#1A8754','#0D6EFD','#DC3545','#FD7E14','#6F42C1','#20C997','#E91E63','#FFC107','#0DCAF0','#6C757D'];
+  state.tags.push({ id:'t-'+rid(), name:'New Tag', color:palette[state.tags.length % palette.length] });
+  save(); openTagManager();
+}
+function updateTagColor(id, color){ const t = tagById(id); if(t){ t.color = color; save(); } }
+function updateTagName(id, name){ const t = tagById(id); if(t){ t.name = (name||'').trim() || t.name; save(); } }
+function deleteTag(id){
+  if(!confirm('Delete this tag? It will be removed from all capabilities.')) return;
+  state.tags = state.tags.filter(t=>t.id!==id);
+  state.categories.forEach(c=>c.caps.forEach(b=>b.items.forEach(i=>{ i.tags = (i.tags||[]).filter(tid=>tid!==id); })));
+  activeTagFilters.delete(id);
+  save(); openTagManager();
+}
+
+/* EXPORT / IMPORT / RESET */
+function exportState(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'capability-map-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importState(ev){
+  const file = ev.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.categories || !data.tags) throw new Error('Missing categories/tags');
+      state = data; save(); activeTagFilters.clear(); rerender();
+    } catch(err){ alert('Invalid map file: ' + err.message); }
+  };
+  r.readAsText(file);
+  ev.target.value = '';
+}
+function resetState(){
+  if(!confirm('Reset to the default map? Your local edits will be lost.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = loadState();
+  activeTagFilters.clear();
+  rerender();
+}
+
+/* ════════════════════
+   KEYBOARD
+════════════════════ */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    if(document.getElementById('modalBackdrop').classList.contains('open')){ closeModal(); return; }
+    if(document.getElementById('detailPage').classList.contains('active')){ showPage('grid'); return; }
+  }
   if(document.getElementById('detailPage').classList.contains('active')){
-    if(e.key==='Escape') showPage('grid');
-    if(e.key==='ArrowRight'&&currentDetailIdx<CATS.length-1) navigateDetail(1);
-    if(e.key==='ArrowLeft'&&currentDetailIdx>0) navigateDetail(-1);
+    if(e.key === 'ArrowRight' && currentDetailIdx < state.categories.length - 1) navigateDetail(1);
+    if(e.key === 'ArrowLeft'  && currentDetailIdx > 0) navigateDetail(-1);
   }
 });
+
+/* ════════════════════
+   INITIAL RENDER
+════════════════════ */
+rerender();
 </script>
 </body>
 </html>
